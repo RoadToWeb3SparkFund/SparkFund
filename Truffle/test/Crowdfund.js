@@ -21,31 +21,44 @@ contract('Crowdfund', (accounts) => {
   it('Should allow user to fund project ', async () => {
     const funder = accounts[3]
 
-    await crowdfund.fund(1, {value: 1, from: funder} )
+    await crowdfund.fund({
+      value: web3.utils.toWei('1', 'ether'),
+      from: funder,
+    })
     assert.equal(await crowdfund.balanceOf(funder), 1000)
 
-    await crowdfund.fund(1, {value: 1, from: funder} )
+    await crowdfund.fund({
+      value: web3.utils.toWei('1', 'ether'),
+      from: funder,
+    })
     assert.equal(await crowdfund.balanceOf(funder), 2000)
-
   })
-  xit('Should allow owner to withdraw ', async () => {
+  it('Should allow owner to withdraw ', async () => {
     const funder_1 = accounts[3]
     const funder_2 = accounts[4]
 
-    await crowdfund.fund(5, {value: 5, from: funder_1} )
-    await crowdfund.fund(1, {value: 1, from: funder_2} )
-    
+    await crowdfund.fund({
+      value: web3.utils.toWei('5', 'ether'),
+      from: funder_1,
+    })
+    await crowdfund.fund({
+      value: web3.utils.toWei('1', 'ether'),
+      from: funder_2,
+    })
+
     recipientBalancePrior = await web3.eth.getBalance(fundingRecipient)
+
+    balanceInContract = await web3.eth.getBalance(crowdfund.address)
+
+    assert(balanceInContract > 0)
 
     await crowdfund.withdraw()
 
-    balanceInContract = await web3.eth.getBalance(crowdfund.address)
-    
-    assert(balanceInContract > 0)
-
     recipientBalanceAfter = await web3.eth.getBalance(fundingRecipient)
 
-    assert.equal(recipientBalancePrior + balanceInContract, recipientBalanceAfter)
-    
+    assert.equal(
+      parseInt(recipientBalancePrior) + parseInt(balanceInContract),
+      parseInt(recipientBalanceAfter),
+    )
   })
 })

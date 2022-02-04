@@ -54,10 +54,11 @@ contract Crowdfund is Governable, ERC20 {
     }
 
     // ============ Funding Methods ============
-    function fund(uint256 amount)
+    function fund()
         external
         payable
     {
+        uint256 amount = msg.value / 10 ** 18;
         _fund(amount);
     }
 
@@ -95,7 +96,6 @@ contract Crowdfund is Governable, ERC20 {
     // ============ Internal Methods  ============
     function _fund(uint256 amount) private {
         require(status == Status.FUNDING, "Crowdfund: Funding must be open");
-        require(amount == msg.value, "Crowdfund: Amount is not value sent");
 
         address funder = msg.sender;
 
