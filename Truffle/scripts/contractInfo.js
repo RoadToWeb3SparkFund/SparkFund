@@ -1,7 +1,7 @@
 var fs = require("fs");
 
 fs.copyFile(
-  "build/contracts/Metacoin.json",
+  "build/contracts/Crowdfund.json",
   "../src/contracts/contractInfo.json",
   (err) => {
     if (err) throw err;

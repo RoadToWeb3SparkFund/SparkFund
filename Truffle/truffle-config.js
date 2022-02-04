@@ -7,11 +7,16 @@ module.exports = {
   //
   networks: {
     develop: {
-      host: "127.0.0.1",
+      host: '127.0.0.1',
       port: 7545,
       chainId: 1337,
       network_id: 1337,
       deploymentPollingInterval: 10,
+    },
+  },
+  compilers: {
+    solc: {
+      version: '0.8.11', // ex:  "0.4.20". (Default: Truffle's installed solc)
     },
   },
   //
@@ -35,4 +40,4 @@ module.exports = {
   //     },
   //   },
   // },
-};
+}

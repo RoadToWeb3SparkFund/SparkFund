@@ -1,8 +1,18 @@
-const ConvertLib = artifacts.require("ConvertLib");
-const MetaCoin = artifacts.require("MetaCoin");
+const Crowdfund = artifacts.require('Crowdfund')
 
 module.exports = function (deployer) {
-  deployer.deploy(ConvertLib);
-  deployer.link(ConvertLib, MetaCoin);
-  deployer.deploy(MetaCoin);
-};
+  let name = 'dummyCoin'
+  let symbol = 'DUMB'
+  let fundingCap = 10000
+  let operatorPercent = 2
+  let tokenScale = 1000
+
+  deployer.deploy(
+    Crowdfund,
+    name,
+    symbol,
+    fundingCap,
+    operatorPercent,
+    tokenScale,
+  )
+}
