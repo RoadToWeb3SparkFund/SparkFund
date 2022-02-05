@@ -5,10 +5,11 @@ const SuperfluidSDK = require('@superfluid-finance/js-sdk')
 const { ethers } = require('hardhat')
 
 module.exports = async function setupContracts() {
-  const [ownerSign, fundSign] = await ethers.getSigners()
+  const [ownerSign, fundSign, funderSign] = await ethers.getSigners()
 
   let owner = await ownerSign.getAddress()
   let fundingRecipient = await fundSign.getAddress()
+  let funder = funderSign
 
   // Superfluid //
   sf = await getSF(owner)
@@ -30,6 +31,7 @@ module.exports = async function setupContracts() {
   let fundingCap = ethers.utils.parseEther('10000')
   let operatorPercent = 2
   let tokenScale = 1000
+  let fixedPercent = 20;
 
   crowdfundContract = await factoryInstance.createCrowdfund(
     name,
@@ -40,6 +42,7 @@ module.exports = async function setupContracts() {
     fundingCap,
     operatorPercent,
     tokenScale,
+    fixedPercent
   )
 
   let ContractReceipt = await crowdfundContract.wait()
@@ -54,6 +57,9 @@ module.exports = async function setupContracts() {
     daix: daix,
     dai: dai,
     crowdfund: crowdfund,
+    funder: funder,
+    operator: owner,
+    fundingRecipient: fundingRecipient
   }
 }
 

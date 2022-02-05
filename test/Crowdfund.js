@@ -6,6 +6,9 @@ describe('Crowdfund', (accounts) => {
   let dai
   let daix
   let crowdfund
+  let funder
+  let operator
+  let fundingRecipient
 
   before(async function () {
     setupConfigs = await setupContracts()
@@ -13,6 +16,10 @@ describe('Crowdfund', (accounts) => {
     dai = setupConfigs.dai
     daix = setupConfigs.daix
     crowdfund = setupConfigs.crowdfund
+    
+    operator = setupConfigs.fundingRecipient
+    fundingRecipient = setupConfigs.fundingRecipient
+    funder = setupConfigs.funder
   })
   it('Should transfer tokens between accounts', async function () {})
 })

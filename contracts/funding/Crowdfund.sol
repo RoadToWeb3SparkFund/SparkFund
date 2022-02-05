@@ -17,6 +17,7 @@ contract Crowdfund is Governable, ERC20 {
     address payable public fundingRecipient;
     uint256 public fundingCap;
     uint256 public operatorPercent;
+    uint256 public fixedPercent;
     Status public status;
 
     //======== Interfaces ====
@@ -42,7 +43,8 @@ contract Crowdfund is Governable, ERC20 {
         address cfa_,
         uint256 fundingCap_,
         uint256 operatorPercent_,
-        uint16 tokenScale_
+        uint16 tokenScale_,
+        uint256 fixedPercent_
     ) ERC20(name, symbol) Governable(operator_) {
         operator = operator_;
         fundingRecipient = fundingRecipient_;
@@ -50,6 +52,7 @@ contract Crowdfund is Governable, ERC20 {
         fundingCap = fundingCap_;
         operatorPercent = operatorPercent_;
         tokenScale = tokenScale_;
+        fixedPercent = fixedPercent_;
 
         emit newCrowdfund(address(this));
     }
