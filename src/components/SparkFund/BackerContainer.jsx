@@ -25,7 +25,37 @@ function BackerContainer() {
           <Account></Account>
         </Box>
       </Box>
-      <Box sx={{ marginTop: "20px" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "40px"
+        }}
+      >
+        <Box>
+          <Typography variant="body1" component="div" gutterBottom>
+            FUNDS RAISED
+          </Typography>
+          <Typography variant="h4" component="div" gutterBottom>
+            18 ETH
+          </Typography>
+          <Typography variant="body2" component="div" gutterBottom>
+            54391.14 USD
+          </Typography>
+        </Box>
+        <Box>
+          <Typography variant="body1" component="div" gutterBottom>
+            FUNDING GOAL
+          </Typography>
+          <Typography variant="h4" component="div" gutterBottom>
+            20 ETH
+          </Typography>
+          <Typography variant="body2" component="div" gutterBottom>
+            60434.60 USD
+          </Typography>
+        </Box>
+      </Box>
+      <Box sx={{ marginTop: "40px", marginBottom: "100px" }}>
         <Typography variant="h5" component="div">
           Backers List
         </Typography>
