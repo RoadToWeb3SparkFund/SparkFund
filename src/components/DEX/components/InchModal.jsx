@@ -39,7 +39,7 @@ function InchModal({ open, onClose, setToken, tokenList }) {
                     lineHeight: "14px",
                   }}
                 >
-                  {tokenList[token].symbol}
+                  {tokenList[token].symbol} 
                 </span>
               </div>
             </div>

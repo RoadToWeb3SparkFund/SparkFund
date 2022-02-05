@@ -4,10 +4,11 @@ import Blockie from "../Blockie";
 import { Button, Card, Modal } from "antd";
 import { useState } from "react";
 import Address from "../Address/Address";
-import { SelectOutlined } from "@ant-design/icons";
+import { BulbFilled, SelectOutlined } from "@ant-design/icons";
 import { getExplorer } from "helpers/networks";
 import Text from "antd/lib/typography/Text";
 import { connectors } from "./config";
+
 const styles = {
   account: {
     height: "42px",
@@ -164,6 +165,32 @@ function Account() {
             </a>
           </div>
         </Card>
+
+        <Card
+          style={{
+            marginTop: "10px",
+            borderRadius: "1rem",
+          }}
+          bodyStyle={{ padding: "15px" }}
+        >
+          <h1>$TOKEN <span style={{fontSize: "20px", color: "grey"}}>34.33</span></h1> 
+        </Card>
+
+        <Button
+          size="large"
+          type="primary"
+          style={{
+            width: "100%",
+            marginTop: "10px",
+            borderRadius: "0.5rem",
+            fontSize: "16px",
+            fontWeight: "500",
+            backgroundColor: "white",
+            color: "#1a90ff"
+          }}
+        >
+          Fund More Projects
+        </Button>
         <Button
           size="large"
           type="primary"
