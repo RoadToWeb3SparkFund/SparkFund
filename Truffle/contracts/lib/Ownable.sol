@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity 0.8.11;
+// pragma solidity 0.8.11;
+pragma solidity ^0.7.6;
 
 contract Ownable {
     address public owner;
@@ -13,7 +14,7 @@ contract Ownable {
     // modifiers
 
     modifier onlyOwner() {
-        require(isOwner(), "caller is not the owner.");
+        require(isOwner(), "Caller is not the owner.");
         _;
     }
 

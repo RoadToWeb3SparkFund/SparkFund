@@ -17,7 +17,6 @@ import {
     CFAv1Library
 } from "@superfluid-finance/ethereum-contracts/contracts/apps/CFAv1Library.sol";
 
-
 contract Crowdfund is Governable, ERC20, SuperAppBase {
 
     //======== Vars ========
@@ -59,22 +58,22 @@ contract Crowdfund is Governable, ERC20, SuperAppBase {
         uint256 fundingCap_,
         uint256 operatorPercent_,
         uint16 tokenScale_
-        // ISuperfluid host
+        ISuperfluid host
     ) ERC20(name, symbol) Governable(msg.sender){
         fundingCap = fundingCap_;
         operatorPercent = operatorPercent_;
         tokenScale = tokenScale_;
 
         //initialize InitData struct, and set equal to cfaV1
-        // cfaV1 = CFAv1Library.InitData(
-        //     host,
-        //     //here, we are deriving the address of the CFA using the host contract
-        //     IConstantFlowAgreementV1(
-        //         address(host.getAgreementClass(
-        //             keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1")
-        //         ))
-        //     )
-        // );
+        cfaV1 = CFAv1Library.InitData(
+            host,
+            //here, we are deriving the address of the CFA using the host contract
+            IConstantFlowAgreementV1(
+                address(host.getAgreementClass(
+                    keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1")
+                ))
+            )
+        );
     }
     
     // ============ Setup Methods ==============
@@ -124,6 +123,30 @@ contract Crowdfund is Governable, ERC20, SuperAppBase {
 
     function withdraw() public {
        payable(fundingRecipient).transfer(address(this).balance);
+    }
+
+
+    // ============= Some Superfluid Code: https://github.com/superfluid-finance/protocol-monorepo/blob/dev/packages/ethereum-contracts/contracts/mocks/CFALibraryMock.sol  ===============
+    // I think we have to wrap the token and send it here, not sure how to
+    // create the wrapped token in the contract itself
+    function createFlow(
+        ISuperfluidToken token,
+        address receiver,
+        int96 flowRate
+    ) public {
+        cfaV1.createFlow(receiver, token, flowRate);
+    }
+
+    function updateFlow(
+        ISuperfluidToken token,
+        address receiver,
+        int96 flowRate
+    ) public {
+        cfaV1.updateFlow(receiver, token, flowRate);
+    }
+
+    function deleteFlow(ISuperfluidToken token, address receiver) public {
+        cfaV1.deleteFlow(address(this), receiver, token);
     }
 
 
