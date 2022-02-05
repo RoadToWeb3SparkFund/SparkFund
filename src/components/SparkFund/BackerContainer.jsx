@@ -2,14 +2,24 @@ import React from "react";
 import Box from "@mui/material/Box";
 import { Typography, Button } from "@mui/material";
 import Account from "../Account/Account";
+import { useMoralis } from "react-moralis";
 
 function BackerContainer() {
+  const { isAuthenticated } = useMoralis();
+
   return (
     <div className="backer-container">
-      <Box>
-        <Typography variant="h4" component="div" gutterBottom>
-          Project Name
-        </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box>
+          <Typography variant="h4" component="div" gutterBottom>
+            Project Name
+          </Typography>
+        </Box>
+        {isAuthenticated && (
+          <Box>
+            <Button variant="contained">Fund Project</Button>
+          </Box>
+        )}
       </Box>
       <Box
         sx={{
