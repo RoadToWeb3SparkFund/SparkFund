@@ -52,15 +52,26 @@ const getChainIdByName = (chainName) => {
 
 const IsNative = (address) => address === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 
-function DEX({
-	chain,
-	customTokens = {
+/* wrapped ether on eth mainnet
+{
 		"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": {
 			address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-			decimals: 9,
+			decimals: 18,
 			logoURI: "https://assets.coingecko.com/coins/images/279/small/ethereum.png?1595348880",
 			name: "Wrapped Ether",
 			symbol: "ETH",
+		},
+}
+*/
+function DEX({
+	chain = "polygon",
+	customTokens = {
+		"0x7ceb23fd6bc0add59e62ac25578270cff1b9f619": {
+			address: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+			decimals: 18,
+			logoURI: "https://assets.coingecko.com/coins/images/279/small/ethereum.png?1595348880",
+			name: "Wrapped Ether",
+			symbol: "WETH",
 		},
 	},
 }) {

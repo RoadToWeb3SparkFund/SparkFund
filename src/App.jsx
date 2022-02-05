@@ -93,6 +93,9 @@ const App = ({ isServerInfo }) => {
             <Route path="/wallet">
               <Wallet />
             </Route>
+            <Route path="/test">
+              <DEX />
+            </Route>
             <Route path="/1inch">
               <Tabs defaultActiveKey="1" style={{ alignItems: "center" }}>
                 <Tabs.TabPane tab={<span>Ethereum</span>} key="1">
