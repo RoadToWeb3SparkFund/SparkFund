@@ -4,7 +4,7 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Redirect,
+  Redirect
 } from "react-router-dom";
 import Account from "components/Account/Account";
 import Chains from "components/Chains";
@@ -19,6 +19,7 @@ import "antd/dist/antd.css";
 import NativeBalance from "components/NativeBalance";
 import "./style.css";
 import QuickStart from "components/QuickStart";
+import ProjectPage from "components/SparkFund/ProjectPage";
 import Contract from "components/Contract/Contract";
 import Text from "antd/lib/typography/Text";
 import Ramper from "components/Ramper";
@@ -32,7 +33,7 @@ const styles = {
     fontFamily: "Roboto, sans-serif",
     color: "#041836",
     marginTop: "130px",
-    padding: "10px",
+    padding: "10px"
   },
   header: {
     position: "fixed",
@@ -45,15 +46,15 @@ const styles = {
     fontFamily: "Roboto, sans-serif",
     borderBottom: "2px solid rgba(0, 0, 0, 0.06)",
     padding: "0 10px",
-    boxShadow: "0 1px 10px rgb(151 164 175 / 10%)",
+    boxShadow: "0 1px 10px rgb(151 164 175 / 10%)"
   },
   headerRight: {
     display: "flex",
     gap: "20px",
     alignItems: "center",
     fontSize: "15px",
-    fontWeight: "600",
-  },
+    fontWeight: "600"
+  }
 };
 const App = ({ isServerInfo }) => {
   const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading } =
@@ -87,6 +88,9 @@ const App = ({ isServerInfo }) => {
 
         <div style={styles.content}>
           <Switch>
+            <Route exact path="/sparkfund">
+              <ProjectPage></ProjectPage>
+            </Route>
             <Route exact path="/quickstart">
               <QuickStart isServerInfo={isServerInfo} />
             </Route>
