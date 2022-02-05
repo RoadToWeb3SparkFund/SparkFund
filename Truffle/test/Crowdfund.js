@@ -1,19 +1,29 @@
+const setupContracts = require('./helpers/setupContracts')
 const Crowdfund = artifacts.require('Crowdfund')
 
 contract('Crowdfund', (accounts) => {
   let operator
   let fundingRecipient
   let crowdfund
+  let sf
+  let dai
+  let daix
+  let cfa
 
-  beforeEach(async () => {
-    crowdfund = await Crowdfund.deployed()
-
-    operator = accounts[0]
-    fundingRecipient = accounts[1]
-
-    await crowdfund.setFundingRecipient(fundingRecipient)
-    await crowdfund.setOperator(operator)
+  before(async function () {
+    setupConfig = await setupContracts(accounts)
+    operator = setupConfig.operator
+    sf = setupConfig.sf
+    daix = setupConfig.daix
+    dai = setupConfig.dai
+    cfa = setupConfig.cfa
+    fundingRecipient = setupConfig.fundingRecipient
   })
+
+  beforeEach(async function () {
+    crowdfund = await Crowdfund.deployed()
+  })
+
   it('should allow setting of recipient and operator on contract', async () => {
     assert.equal(operator, await crowdfund.operator.call())
     assert.equal(fundingRecipient, await crowdfund.fundingRecipient.call())
