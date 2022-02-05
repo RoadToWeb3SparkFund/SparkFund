@@ -1,6 +1,7 @@
 import React from "react";
 import Box from "@mui/material/Box";
 import { Typography, Button } from "@mui/material";
+import Account from "../Account/Account";
 
 function BackerContainer() {
   return (
@@ -21,7 +22,7 @@ function BackerContainer() {
           Redeem by connecting your wallet if you backend this project.
         </Typography>
         <Box>
-          <button>Connect wallet</button>
+          <Account></Account>
         </Box>
       </Box>
       <Box sx={{ marginTop: "20px" }}>

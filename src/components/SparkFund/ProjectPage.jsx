@@ -6,7 +6,7 @@ import BackerContainer from "./BackerContainer";
 function ProjectPage() {
   return (
     <div className="ProjectPage">
-      <Box sx={{ width: "100%", maxWidth: 600 }}>
+      <Box sx={{ width: "100%", maxWidth: 650 }}>
         <Typography variant="h2" component="div" gutterBottom>
           Spark Fund
         </Typography>
