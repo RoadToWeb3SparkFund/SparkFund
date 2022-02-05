@@ -3,10 +3,9 @@ pragma solidity ^0.7.0;
 
 import {Governable} from "../lib/Governable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
+import {ICFACrowdfund} from "../interfaces/ICFACrowdfund.sol";
 
 contract Crowdfund is Governable, ERC20 {
-
     //======== Vars ========
     enum Status {
         FUNDING,
@@ -19,6 +18,9 @@ contract Crowdfund is Governable, ERC20 {
     uint256 public fundingCap;
     uint256 public operatorPercent;
     Status public status;
+
+    //======== Interfaces ====
+    ICFACrowdfund public cfa;
 
     //======== Events ========
     event Contribution(address contributor, uint256 amount);
@@ -37,14 +39,17 @@ contract Crowdfund is Governable, ERC20 {
         uint256 fundingCap_,
         uint256 operatorPercent_,
         uint16 tokenScale_
-    ) ERC20(name, symbol) Governable(msg.sender){
+    ) ERC20(name, symbol) Governable(msg.sender) {
         fundingCap = fundingCap_;
         operatorPercent = operatorPercent_;
         tokenScale = tokenScale_;
     }
-    
+
     // ============ Setup Methods ==============
-    function setFundingRecipient(address payable _fundingRecipient) external onlyOwner {
+    function setFundingRecipient(address payable _fundingRecipient)
+        external
+        onlyOwner
+    {
         fundingRecipient = _fundingRecipient;
     }
 
@@ -53,12 +58,13 @@ contract Crowdfund is Governable, ERC20 {
         changeGovernor(operator);
     }
 
+    function setCFA(address _cfa) external onlyOwner {
+        cfa = ICFACrowdfund(_cfa);
+    }
+
     // ============ Funding Methods ============
-    function fund()
-        external
-        payable
-    {
-        uint256 amount = msg.value / 10 ** 18;
+    function fund() external payable {
+        uint256 amount = msg.value / 10**18;
         _fund(amount);
     }
 
@@ -78,7 +84,7 @@ contract Crowdfund is Governable, ERC20 {
 
         emit FundingClosed(address(this).balance, operatorTokens);
 
-        payable(fundingRecipient).transfer(address(this).balance);
+        withdraw();
     }
 
     function changeFundingRecipient(address payable newFundingRecipient)
@@ -89,9 +95,8 @@ contract Crowdfund is Governable, ERC20 {
     }
 
     function withdraw() public {
-       payable(fundingRecipient).transfer(address(this).balance);
+        payable(fundingRecipient).transfer(address(this).balance);
     }
-
 
     // ============ Internal Methods  ============
     function _fund(uint256 amount) private {
@@ -109,12 +114,11 @@ contract Crowdfund is Governable, ERC20 {
                 startAmount < fundingCap,
                 "Crowdfund: Funding cap already reached"
             );
-           uint256 eligibleAmount = fundingCap - startAmount;
-             _mint(funder, valueToTokens(eligibleAmount));
+            uint256 eligibleAmount = fundingCap - startAmount;
+            _mint(funder, valueToTokens(eligibleAmount));
 
             emit Contribution(funder, eligibleAmount);
             payable(funder).transfer(address(this).balance);
         }
     }
-
 }
