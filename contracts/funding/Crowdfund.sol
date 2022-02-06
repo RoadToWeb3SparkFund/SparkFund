@@ -4,12 +4,18 @@ pragma solidity ^0.7.0;
 import {Governable} from "../lib/Governable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ICFACrowdfund} from "../interfaces/ICFACrowdfund.sol";
 import "hardhat/console.sol";
 
-import {ISuperToken} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol";
+import {CFAv1Library} from "@superfluid-finance/ethereum-contracts/contracts/apps/CFAv1Library.sol";
+import {IConstantFlowAgreementV1} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
+import {ISuperfluid, ISuperToken} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
 contract Crowdfund is Governable, ERC20 {
+    //======== CFA =========
+    using CFAv1Library for CFAv1Library.InitData;
+
+    CFAv1Library.InitData public cfaV1;
+
     //======== Vars ========
     enum Status {
         FUNDING,
@@ -25,9 +31,6 @@ contract Crowdfund is Governable, ERC20 {
     Status public status;
     IERC20 fDaiToken;
     IERC20 fDaiXToken;
-
-    //======== Interfaces ====
-    ICFACrowdfund public cfa;
 
     //======== Events ========
     event Contribution(address contributor, uint256 amount);
@@ -47,7 +50,7 @@ contract Crowdfund is Governable, ERC20 {
         string memory symbol,
         address payable operator_,
         address payable fundingRecipient_,
-        address cfa_,
+        ISuperfluid sfHost_,
         address fDaiToken_,
         address fDaiXToken_,
         uint256 fundingCap_,
@@ -57,7 +60,6 @@ contract Crowdfund is Governable, ERC20 {
     ) ERC20(name, symbol) Governable(operator_) {
         operator = operator_;
         fundingRecipient = fundingRecipient_;
-        cfa = ICFACrowdfund(cfa_);
         fundingCap = fundingCap_;
         operatorPercent = operatorPercent_;
         tokenScale = tokenScale_;
@@ -67,6 +69,20 @@ contract Crowdfund is Governable, ERC20 {
         fDaiXToken = IERC20(fDaiXToken_);
 
         emit newCrowdfund(address(this));
+
+        cfaV1 = CFAv1Library.InitData(
+            sfHost_,
+            //here, we are deriving the address of the CFA using the host contract
+            IConstantFlowAgreementV1(
+                address(
+                    sfHost_.getAgreementClass(
+                        keccak256(
+                            "org.superfluid-finance.agreements.ConstantFlowAgreement.v1"
+                        )
+                    )
+                )
+            )
+        );
     }
 
     // ============ Funding Methods ============
@@ -119,13 +135,13 @@ contract Crowdfund is Governable, ERC20 {
         fDaiToken.approve(fundingRecipient, fixedAmount);
         fDaiToken.transfer(fundingRecipient, fixedAmount);
 
-        // ideal flow
-        // ERC20(address(fdaitoken)).approve(address(fdaitokenx), streamingAmount);
-        // cfa.createFlow(ISuperToken(address(fdaitokenx)).upgrade(streamingAmount), fundingRecipient, 1);
+        fDaiToken.approve(address(fDaiXToken), streamingAmount);
+        ISuperToken token = ISuperToken(address(fDaiXToken));
+        token.upgrade(streamingAmount);
 
-        // ERC20(0x59b670e9fA9D0A427751Af201D676719a970857b)
-        // .approve(0x1f65B7b9b3ADB4354fF76fD0582bB6b0d046a41c, 1);
-        // ISuperToken(0x1f65B7b9b3ADB4354fF76fD0582bB6b0d046a41c).upgrade(1);
+        int96 flowRate = _calculateFlowRate(streamingAmount);
+
+        cfaV1.createFlow(fundingRecipient, token, flowRate);
     }
 
     // ============ Internal Methods  ============
@@ -147,5 +163,9 @@ contract Crowdfund is Governable, ERC20 {
         _mint(funder, valueToTokens(amount));
 
         emit Contribution(funder, amount);
+    }
+
+    function _calculateFlowRate(uint256 amount) private returns (int96) {
+        return int96((amount / 12) / (60 * 60 * 24 * 30));
     }
 }

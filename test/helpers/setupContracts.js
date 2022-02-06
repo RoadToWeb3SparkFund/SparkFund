@@ -18,9 +18,6 @@ module.exports = async function setupContracts() {
   daix = sf.tokens.fDAIx
   dai = await sf.contracts.TestToken.at(await sf.tokens.fDAI.address)
 
-  const CFACrowdfund = await ethers.getContractFactory('CFACrowdfund')
-  const CFAInstance = await CFACrowdfund.deploy(sf.host.address)
-
   // Superfluid end//
 
   const factory = await ethers.getContractFactory('CrowdfundFactory')
@@ -39,7 +36,7 @@ module.exports = async function setupContracts() {
     symbol,
     owner,
     fundingRecipient,
-    CFAInstance.address,
+    sf.host.address,
     dai.address,
     daix.address,
     fundingCap,

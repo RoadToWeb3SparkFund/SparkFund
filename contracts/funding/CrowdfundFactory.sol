@@ -3,6 +3,7 @@ pragma solidity ^0.7.0;
 
 import {Ownable} from "../lib/Ownable.sol";
 import {Crowdfund} from "./Crowdfund.sol";
+import {ISuperfluid} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
 contract CrowdfundFactory is Ownable {
     constructor() Ownable(msg.sender) {
@@ -14,7 +15,7 @@ contract CrowdfundFactory is Ownable {
         string memory symbol,
         address payable operator_,
         address payable fundingRecipient_,
-        address cfa_,
+        ISuperfluid sfHost_,
         address fDaiToken_,
         address fDaiXToken_,
         uint256 fundingCap_,
@@ -27,7 +28,7 @@ contract CrowdfundFactory is Ownable {
             symbol,
             operator_,
             fundingRecipient_,
-            cfa_,
+            sfHost_,
             fDaiToken_,
             fDaiXToken_,
             fundingCap_,
