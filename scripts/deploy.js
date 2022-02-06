@@ -63,6 +63,8 @@ async function main() {
     tokenScale,
     fixedPercent,
   )
+
+  console.log("CrowdfundContract deployed to:", crowdfundContract);
 }
 
 
