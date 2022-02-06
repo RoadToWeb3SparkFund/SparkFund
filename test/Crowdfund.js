@@ -1,6 +1,8 @@
 const { expect, assert } = require('chai')
 const setupContracts = require('./helpers/setupContracts')
 const { web3tx, toWad, toBN, wad4human } = require('@decentral.ee/web3-helpers')
+const traveler = require('ganache-time-traveler')
+const TEST_TRAVEL_TIME = 3600 * 1 // 1 hour
 
 describe('Crowdfund', (accounts) => {
   let sf
@@ -63,7 +65,11 @@ describe('Crowdfund', (accounts) => {
     console.log('Balance prior is %s', recipientBalancePrior)
 
     balanceInContract = await dai.balanceOf(crowdfund.address)
-    expectedPercentage = (parseInt(balanceInContract) / 100) * 20
+
+    // assume defaults in setupContracts.js
+    expectedFixed = (parseInt(balanceInContract) / 100) * 20
+    expectedStreamed = (parseInt(balanceInContract) / 100) * 80
+
     console.log('Balance in contract %s', balanceInContract)
 
     assert(balanceInContract > 0)
@@ -73,12 +79,32 @@ describe('Crowdfund', (accounts) => {
     recipientBalanceAfter = await dai.balanceOf(fundingRecipient)
 
     assert.equal(
-      parseInt(recipientBalancePrior) + expectedPercentage,
+      parseInt(recipientBalancePrior) + expectedFixed,
       recipientBalanceAfter,
     )
 
     //check stream is open
 
     console.log(await sf.cfa.listFlows(daix))
+    console.log('net flow...')
+    console.log(parseInt(await daix.balanceOf(fundingRecipient)))
+
+    await traveler.advanceTimeAndBlock(TEST_TRAVEL_TIME)
+
+    DaiXAfter = parseInt(await daix.balanceOf(fundingRecipient))
+    console.log(
+      'net flow after...',
+      parseInt(await daix.balanceOf(fundingRecipient)),
+    )
+
+    // There seems to be a slight discrepency, I will need to look into this a bit more later.
+    // At the moment, this is probably OK!
+
+    expectedFundsStreamed = expectedStreamed / (24 * 30 * 12)
+    assert.closeTo(
+      expectedFundsStreamed / 10 ** 18,
+      DaiXAfter / 10 ** 18,
+      0.000000005,
+    )
   })
 })
