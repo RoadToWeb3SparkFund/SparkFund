@@ -25,7 +25,7 @@ contract Crowdfund is Governable, ERC20 {
     address payable public operator;
     address payable public fundingRecipient;
     uint256 public fundingCap;
-    uint256 public operatorPercent;
+    uint256 public fundingPercent;
     uint256 public tokenScale;
     uint256 public fixedPercent;
     Status public status;
@@ -54,14 +54,14 @@ contract Crowdfund is Governable, ERC20 {
         address fDaiToken_,
         address fDaiXToken_,
         uint256 fundingCap_,
-        uint256 operatorPercent_,
+        uint256 fundingPercent_,
         uint256 tokenScale_,
         uint256 fixedPercent_
     ) ERC20(name, symbol) Governable(operator_) {
         operator = operator_;
         fundingRecipient = fundingRecipient_;
         fundingCap = fundingCap_;
-        operatorPercent = operatorPercent_;
+        fundingPercent = fundingPercent_;
         tokenScale = tokenScale_;
         fixedPercent = fixedPercent_;
 
@@ -99,12 +99,12 @@ contract Crowdfund is Governable, ERC20 {
         require(status == Status.FUNDING, "Crowdfund: Funding must be open");
         status = Status.CLOSED;
 
-        // Mint the operator a percent of the total supply.
-        uint256 operatorTokens = (operatorPercent * totalSupply()) /
-            (100 - operatorPercent);
-        _mint(operator, operatorTokens);
+        // Mint the fundingRecipient a percent of the total supply.
+        uint256 fundingTokens = (totalSupply() / (100 - fundingPercent)) *
+            fundingPercent;
+        _mint(fundingRecipient, fundingTokens);
 
-        emit FundingClosed(address(this).balance, operatorTokens);
+        emit FundingClosed(address(this).balance, fundingTokens);
 
         _withdraw();
     }

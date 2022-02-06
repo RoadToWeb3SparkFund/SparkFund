@@ -27,7 +27,7 @@ module.exports = async function setupContracts() {
   let name = 'dummyCoin'
   let symbol = 'DUMB'
   let fundingCap = toWad('10000').toString()
-  let operatorPercent = 2
+  let fundingPercent = 20
   let tokenScale = (10 ** 16).toString()
   let fixedPercent = 20
 
@@ -40,7 +40,7 @@ module.exports = async function setupContracts() {
     dai.address,
     daix.address,
     fundingCap,
-    operatorPercent,
+    fundingPercent,
     tokenScale,
     fixedPercent,
   )

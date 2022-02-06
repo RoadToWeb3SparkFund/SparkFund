@@ -1,16 +1,20 @@
-const { expect, assert } = require('chai')
+const hre = require('hardhat')
+const chai = require('chai')
+const { solidity } = require('ethereum-waffle')
+chai.use(solidity)
+const { expect } = chai
+
 const setupContracts = require('./helpers/setupContracts')
 const { web3tx, toWad, toBN, wad4human } = require('@decentral.ee/web3-helpers')
 const traveler = require('ganache-time-traveler')
 const TEST_TRAVEL_TIME = 3600 * 1 // 1 hour
 
-describe('Crowdfund', (accounts) => {
+describe('Crowdfund', () => {
   let sf
   let dai
   let daix
   let crowdfund
   let funder
-  let operator
   let fundingRecipient
   let fixedPercent
 
@@ -27,7 +31,9 @@ describe('Crowdfund', (accounts) => {
     fixedPercent = setupConfigs.fixedPercent
   })
 
-  beforeEach(async function () {
+  beforeEach(async function () {})
+
+  async function addTransactions() {
     funderAddress = funder.address
     // Approve and add transactions
 
@@ -45,9 +51,11 @@ describe('Crowdfund', (accounts) => {
     )(crowdfund.address, toWad(300), { from: funderAddress })
 
     await crowdfund.connect(funder).fund(toWad(300).toString())
-  })
+  }
 
   it('Should allow user to fund project ', async () => {
+    await addTransactions()
+
     assert.equal(
       parseInt(await crowdfund.connect(funder).balanceOf(funderAddress)),
       50000,
@@ -60,6 +68,7 @@ describe('Crowdfund', (accounts) => {
   })
 
   it('Should allow owner to close funding ', async () => {
+    await addTransactions()
     recipientBalancePrior = await dai.balanceOf(fundingRecipient)
 
     console.log('Balance prior is %s', recipientBalancePrior)
@@ -86,16 +95,10 @@ describe('Crowdfund', (accounts) => {
     //check stream is open
 
     console.log(await sf.cfa.listFlows(daix))
-    console.log('net flow...')
-    console.log(parseInt(await daix.balanceOf(fundingRecipient)))
 
     await traveler.advanceTimeAndBlock(TEST_TRAVEL_TIME)
 
     DaiXAfter = parseInt(await daix.balanceOf(fundingRecipient))
-    console.log(
-      'net flow after...',
-      parseInt(await daix.balanceOf(fundingRecipient)),
-    )
 
     // There seems to be a slight discrepency, I will need to look into this a bit more later.
     // At the moment, this is probably OK!
@@ -105,6 +108,30 @@ describe('Crowdfund', (accounts) => {
       expectedFundsStreamed / 10 ** 18,
       DaiXAfter / 10 ** 18,
       0.000000005,
+    )
+
+    //also check fundingRecipient has been given the allocated tokens
+
+    fundingRecipientTokens = parseInt(
+      await crowdfund.balanceOf(fundingRecipient),
+    )
+
+    expectedRecipientTokens = parseInt(
+      ((await crowdfund.totalSupply()) / 100) * 20,
+    )
+
+    assert.equal(fundingRecipientTokens, expectedRecipientTokens)
+  })
+
+  it('Try closing funding again', async () => {
+    await expect(crowdfund.closeFunding()).to.be.revertedWith(
+      'Crowdfund: Funding must be open',
+    )
+  })
+
+  it('Try posting transactions again', async () => {
+    await expect(addTransactions()).to.be.revertedWith(
+      'Crowdfund: Funding must be open',
     )
   })
 })

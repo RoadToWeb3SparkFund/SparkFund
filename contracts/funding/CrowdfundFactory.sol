@@ -19,7 +19,7 @@ contract CrowdfundFactory is Ownable {
         address fDaiToken_,
         address fDaiXToken_,
         uint256 fundingCap_,
-        uint256 operatorPercent_,
+        uint256 fundingPercent_,
         uint256 tokenScale_,
         uint256 fixedPercent_
     ) external onlyOwner returns (address) {
@@ -32,7 +32,7 @@ contract CrowdfundFactory is Ownable {
             fDaiToken_,
             fDaiXToken_,
             fundingCap_,
-            operatorPercent_,
+            fundingPercent_,
             tokenScale_,
             fixedPercent_
         );
