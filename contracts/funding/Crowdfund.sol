@@ -106,7 +106,7 @@ contract Crowdfund is Governable, ERC20 {
 
         emit FundingClosed(address(this).balance, operatorTokens);
 
-        withdraw();
+        _withdraw();
     }
 
     function changeFundingRecipient(address payable newFundingRecipient)
@@ -114,34 +114,6 @@ contract Crowdfund is Governable, ERC20 {
         onlyOperator
     {
         fundingRecipient = newFundingRecipient;
-    }
-
-    function withdraw() public {
-        uint256 currentBalance = fDaiToken.balanceOf(address(this));
-
-        console.log("currentBalance", currentBalance);
-
-        console.log("fixedPercent", fixedPercent);
-
-        uint256 fixedAmount = (currentBalance / 100) * 20;
-
-        console.log("FixedAmount", fixedAmount);
-
-        uint256 streamingAmount = currentBalance - fixedAmount;
-
-        console.log("Withdrawing", fixedAmount);
-
-        // payable(fundingRecipient).transfer(address(this).balance);
-        fDaiToken.approve(fundingRecipient, fixedAmount);
-        fDaiToken.transfer(fundingRecipient, fixedAmount);
-
-        fDaiToken.approve(address(fDaiXToken), streamingAmount);
-        ISuperToken token = ISuperToken(address(fDaiXToken));
-        token.upgrade(streamingAmount);
-
-        int96 flowRate = _calculateFlowRate(streamingAmount);
-
-        cfaV1.createFlow(fundingRecipient, token, flowRate);
     }
 
     // ============ Internal Methods  ============
@@ -163,6 +135,27 @@ contract Crowdfund is Governable, ERC20 {
         _mint(funder, valueToTokens(amount));
 
         emit Contribution(funder, amount);
+    }
+
+    function _withdraw() private {
+        uint256 currentBalance = fDaiToken.balanceOf(address(this));
+        uint256 fixedAmount = (currentBalance / 100) * 20;
+        uint256 streamingAmount = currentBalance - fixedAmount;
+
+        fDaiToken.approve(fundingRecipient, fixedAmount);
+        fDaiToken.transfer(fundingRecipient, fixedAmount);
+
+        _createFLow(streamingAmount);
+    }
+
+    function _createFLow(uint256 streamingAmount) private {
+        fDaiToken.approve(address(fDaiXToken), streamingAmount);
+        ISuperToken token = ISuperToken(address(fDaiXToken));
+        token.upgrade(streamingAmount);
+
+        int96 flowRate = _calculateFlowRate(streamingAmount);
+
+        cfaV1.createFlow(fundingRecipient, token, flowRate);
     }
 
     function _calculateFlowRate(uint256 amount) private returns (int96) {

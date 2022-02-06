@@ -57,7 +57,7 @@ describe('Crowdfund', (accounts) => {
     )
   })
 
-  it('Should allow owner to withdraw ', async () => {
+  it('Should allow owner to close funding ', async () => {
     recipientBalancePrior = await dai.balanceOf(fundingRecipient)
 
     console.log('Balance prior is %s', recipientBalancePrior)
@@ -68,7 +68,7 @@ describe('Crowdfund', (accounts) => {
 
     assert(balanceInContract > 0)
 
-    await crowdfund.withdraw()
+    await crowdfund.closeFunding()
 
     recipientBalanceAfter = await dai.balanceOf(fundingRecipient)
 
@@ -76,5 +76,9 @@ describe('Crowdfund', (accounts) => {
       parseInt(recipientBalancePrior) + expectedPercentage,
       recipientBalanceAfter,
     )
+
+    //check stream is open
+
+    console.log(await sf.cfa.listFlows(daix))
   })
 })
