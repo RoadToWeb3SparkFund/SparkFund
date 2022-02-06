@@ -67,10 +67,11 @@ describe('Crowdfund', () => {
     )
   })
 
-  it('Close Funding ', async () => {
+  it('Should allow owner to close funding ', async () => {
     await addTransactions()
-
     recipientBalancePrior = await dai.balanceOf(fundingRecipient)
+
+    console.log('Balance prior is %s', recipientBalancePrior)
 
     balanceInContract = await dai.balanceOf(crowdfund.address)
 
@@ -84,42 +85,42 @@ describe('Crowdfund', () => {
 
     await crowdfund.closeFunding()
 
-    it('Expect balance of contract to be transferred to the recipient', async () => {
-      recipientBalanceAfter = await dai.balanceOf(fundingRecipient)
+    recipientBalanceAfter = await dai.balanceOf(fundingRecipient)
 
-      assert.equal(
-        parseInt(recipientBalancePrior) + expectedFixed,
-        recipientBalanceAfter,
-      )
-    })
+    assert.equal(
+      parseInt(recipientBalancePrior) + expectedFixed,
+      recipientBalanceAfter,
+    )
 
-    it('Expect stream to be open and streaming the correct amount to fundingRecipient', async () => {
-      await traveler.advanceTimeAndBlock(TEST_TRAVEL_TIME)
+    //check stream is open
 
-      DaiXAfter = parseInt(await daix.balanceOf(fundingRecipient))
+    console.log(await sf.cfa.listFlows(daix))
 
-      // There seems to be a slight discrepency, I will need to look into this a bit more later.
-      // At the moment, this is probably OK!
+    await traveler.advanceTimeAndBlock(TEST_TRAVEL_TIME)
 
-      expectedFundsStreamed = expectedStreamed / (24 * 30 * 12)
-      assert.closeTo(
-        expectedFundsStreamed / 10 ** 18,
-        DaiXAfter / 10 ** 18,
-        0.000000005,
-      )
-    })
+    DaiXAfter = parseInt(await daix.balanceOf(fundingRecipient))
 
-    it('Expect funding recipient to be allocated the correct number of tokens', async () => {
-      fundingRecipientTokens = parseInt(
-        await crowdfund.balanceOf(fundingRecipient),
-      )
+    // There seems to be a slight discrepency, I will need to look into this a bit more later.
+    // At the moment, this is probably OK!
 
-      expectedRecipientTokens = parseInt(
-        ((await crowdfund.totalSupply()) / 100) * 20,
-      )
+    expectedFundsStreamed = expectedStreamed / (24 * 30 * 12)
+    assert.closeTo(
+      expectedFundsStreamed / 10 ** 18,
+      DaiXAfter / 10 ** 18,
+      0.000000005,
+    )
 
-      assert.equal(fundingRecipientTokens, expectedRecipientTokens)
-    })
+    //also check fundingRecipient has been given the allocated tokens
+
+    fundingRecipientTokens = parseInt(
+      await crowdfund.balanceOf(fundingRecipient),
+    )
+
+    expectedRecipientTokens = parseInt(
+      ((await crowdfund.totalSupply()) / 100) * 20,
+    )
+
+    assert.equal(fundingRecipientTokens, expectedRecipientTokens)
   })
 
   it('Try closing funding again', async () => {
