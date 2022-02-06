@@ -5,6 +5,8 @@ require('@nomiclabs/hardhat-ethers')
 
 require('dotenv').config()
 
+let secret = require("./secret");
+
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
@@ -32,6 +34,16 @@ module.exports = {
         enabled: true,
       },
     },
+  },
+
+  networks: {
+    hardhat: {
+    },
+    mumbai: {
+      networkId: 80001,
+      url: secret.value, // url given by moralis for mumbai network
+      accounts: [secret.key] // private key for a test acc on mumbai network
+    }
   },
 
   // networks: {
