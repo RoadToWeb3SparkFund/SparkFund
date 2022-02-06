@@ -16,10 +16,7 @@ function FundingInfo() {
           FUNDS RAISED
         </Typography>
         <Typography variant="h4" component="div" gutterBottom>
-          18 ETH
-        </Typography>
-        <Typography variant="body2" component="div" gutterBottom>
-          54391.14 USD
+          60,000 DAI
         </Typography>
       </Box>
       <Box>
@@ -27,10 +24,7 @@ function FundingInfo() {
           FUNDING GOAL
         </Typography>
         <Typography variant="h4" component="div" gutterBottom>
-          20 ETH
-        </Typography>
-        <Typography variant="body2" component="div" gutterBottom>
-          60434.60 USD
+          100,000 DAI
         </Typography>
       </Box>
     </Box>

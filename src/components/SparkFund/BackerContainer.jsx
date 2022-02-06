@@ -28,8 +28,8 @@ function BackerContainer() {
     <div className="backer-container">
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Box>
-          <Typography variant="h4" component="div" gutterBottom>
-            Project Name
+          <Typography variant="h5" component="div" gutterBottom>
+            Metaverse my ride ($PIMP)
           </Typography>
         </Box>
         {isAuthenticated && (
@@ -42,7 +42,6 @@ function BackerContainer() {
           onClose={handleClose}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
-          
         >
           <Box sx={modalStyle}>
             <Typography
@@ -50,8 +49,7 @@ function BackerContainer() {
               id="modal-modal-title"
               variant="h4"
               component="h2"
-            >
-            </Typography>
+            ></Typography>
             <DEX></DEX>
           </Box>
         </Modal>
@@ -65,6 +63,7 @@ function BackerContainer() {
       >
         <Typography variant="body1" component="div">
           Redeem by connecting your wallet if you backed this project.
+          <br></br>Pay DAI upfront, or streamed over 12 months via Superfluid.
         </Typography>
         <Box>
           <Account></Account>
