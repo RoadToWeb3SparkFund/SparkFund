@@ -159,6 +159,7 @@ contract Crowdfund is Governable, ERC20 {
     }
 
     function _calculateFlowRate(uint256 amount) private returns (int96) {
+        // Assume a 12 month period for now
         return int96((amount / 12) / (60 * 60 * 24 * 30));
     }
 }
