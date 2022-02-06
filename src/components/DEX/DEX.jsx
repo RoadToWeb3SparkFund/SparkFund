@@ -20,7 +20,7 @@ const styles = {
 		borderRadius: "1rem",
 		fontSize: "16px",
 		fontWeight: "500",
-    borderColor: "transparent"
+		borderColor: "transparent",
 	},
 	input: {
 		padding: "0",
@@ -45,7 +45,7 @@ const chainIds = {
 	"0x1": "eth",
 	"0x38": "bsc",
 	"0x89": "polygon",
-  "0x80001": "mumbai" 
+	"0x80001": "mumbai",
 };
 
 const getChainIdByName = (chainName) => {
@@ -81,12 +81,19 @@ wrapped ether polygong mainnet
 function DEX({
 	chain = "mumbai",
 	customTokens = {
-		"0xd393b1e02da9831ff419e22ea105aae4c47e1253": {
-			address: "0xd393b1e02da9831ff419e22ea105aae4c47e1253",
+		"0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7": {
+			address: "0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7",
 			decimals: 18,
 			logoURI: "https://assets.coingecko.com/coins/images/9956/small/4943.png?1636636734",
-			name: "DAI",
-			symbol: "DAI",
+			name: "fDAI",
+			symbol: "fDAI",
+		},
+		"0x2058a9d7613eee744279e3856ef0eada5fcbaa7e": {
+			address: "0x2058a9d7613eee744279e3856ef0eada5fcbaa7e",
+			decimals: 6,
+			logoURI: "https://assets.coingecko.com/coins/images/9956/small/4943.png?1636636734",
+			name: "USDC",
+			symbol: "USDC",
 		},
 	},
 }) {
@@ -96,8 +103,8 @@ function DEX({
 	const [isFromModalActive, setFromModalActive] = useState(false);
 	const [isToModalActive, setToModalActive] = useState(false);
 	const [fromToken, setFromToken] = useState();
-  // fromToken used for Price checks only, use fromTokenMumbai for swap
-  // const [fromTokenMumbai, setFromTokenMumbai] = useState();
+	// fromToken used for Price checks only, use fromTokenMumbai for swap
+	// const [fromTokenMumbai, setFromTokenMumbai] = useState();
 
 	const [toToken, setToToken] = useState();
 	const [fromAmount, setFromAmount] = useState();
@@ -132,15 +139,15 @@ function DEX({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [toTokenPriceUsd, quote]);
 
-	// tokenPrices
+	// tokenPrices fromToken
 	useEffect(() => {
 		if (!isInitialized || !fromToken || !chain) return null;
 		// const validatedChain = chain ? getChainIdByName(chain) : chainId;
-    // manually set chainId
-    const validatedChain = "0x89"
+		// manually set chainId
+		const validatedChain = "0x89";
 		// const tokenAddress = IsNative(fromToken["address"]) ? getWrappedNative(validatedChain) : fromToken["address"];
-    // manually set tokenAddress
-    const tokenAddress = "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063"
+		// manually set tokenAddress
+		const tokenAddress = "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063";
 		fetchTokenPrice({
 			params: { chain: validatedChain, address: tokenAddress },
 			onSuccess: (price) =>
@@ -152,17 +159,22 @@ function DEX({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chain, isInitialized, fromToken]);
 
+	// tokenPrices toToken
 	useEffect(() => {
 		if (!isInitialized || !toToken || !chain) return null;
-		const validatedChain = chain ? getChainIdByName(chain) : chainId;
-		const tokenAddress = IsNative(toToken["address"]) ? getWrappedNative(validatedChain) : toToken["address"];
-		fetchTokenPrice({
-			params: { chain: validatedChain, address: tokenAddress },
-			onSuccess: (price) =>
-				setTokenPricesUSD({
-					...tokenPricesUSD,
-					[toToken["address"]]: price["usdPrice"],
-				}),
+		// const validatedChain = chain ? getChainIdByName(chain) : chainId;
+		// const tokenAddress = IsNative(toToken["address"]) ? getWrappedNative(validatedChain) : toToken["address"];
+		// fetchTokenPrice({
+		// 	params: { chain: validatedChain, address: tokenAddress },
+		// 	onSuccess: (price) =>
+		// 		setTokenPricesUSD({
+		// 			...tokenPricesUSD,
+		// 			[toToken["address"]]: price["usdPrice"],
+		// 		}),
+		// });
+		setTokenPricesUSD({
+			...tokenPricesUSD,
+			[toToken["address"]]: "1.000000",
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chain, isInitialized, toToken]);
@@ -172,9 +184,10 @@ function DEX({
 		setFromToken(tokens[nativeAddress]);
 	}, [tokens, fromToken]);
 
-  // setting from token manually
+	// setting from token manually + setting to token manually
 	useEffect(() => {
-		setFromToken(customTokens["0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"]);
+		setFromToken(customTokens["0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7"]);
+		setToToken(customTokens["0x2058a9d7613eee744279e3856ef0eada5fcbaa7e"]);
 	}, []);
 
 	const ButtonState = useMemo(() => {
@@ -191,25 +204,26 @@ function DEX({
 		if (fromToken && toToken && fromAmount) setCurrentTrade({ fromToken, toToken, fromAmount, chain });
 	}, [toToken, fromToken, fromAmount, chain]);
 
-	useEffect(() => {
-		if (currentTrade) getQuote(currentTrade).then((quote) => setQuote(quote));
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [currentTrade]);
+	// useEffect(() => {
+	// 	if (currentTrade) getQuote(currentTrade).then((quote) => setQuote(quote));
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [currentTrade]);
 
 	const PriceSwap = () => {
-		const Quote = quote;
-		if (!Quote || !tokenPricesUSD?.[toToken?.["address"]]) return null;
-		if (Quote?.statusCode === 400) return <>{Quote.message}</>;
-		console.log(Quote);
-		const { fromTokenAmount, toTokenAmount } = Quote;
+		// const Quote = quote;
+		// if (!Quote || !tokenPricesUSD?.[toToken?.["address"]]) return null;
+		// console.log("hi");
+		// if (Quote?.statusCode === 400) return <>{Quote.message}</>;
+		// console.log(Quote);
+		// const { fromTokenAmount, toTokenAmount } = Quote;
 		const { symbol: fromSymbol } = fromToken;
-		const { symbol: toSymbol } = toToken;
-		const pricePerToken = parseFloat(
-			tokenValue(fromTokenAmount, fromToken["decimals"]) / tokenValue(toTokenAmount, toToken["decimals"])
-		).toFixed(6);
+		// const { symbol: toSymbol } = toToken;
+		// const pricePerToken = parseFloat(
+		// 	tokenValue(fromTokenAmount, fromToken["decimals"]) / tokenValue(toTokenAmount, toToken["decimals"])
+		// ).toFixed(6);
 		return (
 			<Text style={styles.priceSwap}>
-				Price: <Text>{`1 ${toSymbol} = ${pricePerToken} ${fromSymbol} ($${tokenPricesUSD[[toToken["address"]]].toFixed(6)})`}</Text>
+				Price: <Text>{`1 ${fromTokenAmountUsd} = ${parseFloat(fromTokenAmountUsd)/1} ${fromSymbol} ($${tokenPricesUSD[[toToken["address"]]].toFixed(6)})`}</Text>
 			</Text>
 		);
 	};
@@ -327,7 +341,7 @@ function DEX({
 								fontSize: "18px",
 							}}
 						>
-							ASD
+							TOK
 						</Text>
 						{/* <Button
               style={{
