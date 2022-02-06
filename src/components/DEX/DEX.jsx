@@ -10,6 +10,7 @@ import { tokenValue } from "helpers/formatters";
 import { getWrappedNative } from "helpers/networks";
 
 import { ethers } from "ethers";
+import contract from "../../utils/contract.json";
 
 const styles = {
 	card: {
@@ -208,13 +209,13 @@ function DEX({
 	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	// }, [currentTrade]);
 
-	const callContract = async () => {
+	const fundContract = async () => {
 		const wad = parseFloat(fromAmount) * 10 ** 18;
 
     const contractAddress = "0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e"; 
 		if (window.ethereum) {
-      let abi = ["function approve(address _spender, uint256 _value) public returns (bool success)"]
-
+      // let abi = ["function approve(address _spender, uint256 _value) public returns (bool success)"]
+      let abi = contract.abi
 			const provider = new ethers.providers.Web3Provider(window.ethereum);
 			const signer = provider.getSigner();
 			let userAddress = await signer.getAddress();
@@ -224,7 +225,6 @@ function DEX({
 			await sparkFundContract.approve(userAddress, fromAmount);
 			const tx = await sparkFundContract.fund(wad); // set gasLimit to something more sound {gasLimit: 10e18} paste at the end
       console.log('asda')
-			//setTransactionSuccessModal(true)
 		}
 	};
 
@@ -341,13 +341,13 @@ function DEX({
 								fontSize: "18px",
 							}}
 						>
-							TOK
+							$PIMP
 						</Text>
 					</div>
 				</Card>
 				<Text style={styles.priceSwap}>
 					{" "}
-					<span style={{ fontWeight: 600 }}>Conversion: </span>1 DAI = 100 TOK
+					<span style={{ fontWeight: 600 }}>Conversion: </span>1 $DAI = 100 $PIMP
 				</Text>
 				<Button
 					type="primary"
@@ -358,7 +358,7 @@ function DEX({
 						borderRadius: "0.6rem",
 						height: "50px",
 					}}
-					onClick={callContract}
+					onClick={fundContract}
 					disabled={!ButtonState.isActive}
 				>
 					{ButtonState.text}
