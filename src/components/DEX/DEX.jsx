@@ -8,9 +8,9 @@ import { ArrowDownOutlined } from "@ant-design/icons";
 import { useTokenPrice } from "react-moralis";
 import { tokenValue } from "helpers/formatters";
 import { getWrappedNative } from "helpers/networks";
-// import { Typography, Modal, Backdrop } from "@mui/material";
 
-// import { useOneInchQuote } from "react-moralis";
+import { ethers } from "ethers";
+import contract from "../../utils/contract.json";
 
 const styles = {
 	card: {
@@ -32,9 +32,9 @@ const styles = {
 	priceSwap: {
 		display: "flex",
 		justifyContent: "space-between",
-		fontSize: "15px",
-		color: "#434343",
-		marginTop: "8px",
+		fontSize: "18px",
+		color: "#616161",
+		marginTop: "25px",
 		padding: "0 10px",
 	},
 };
@@ -77,9 +77,7 @@ wrapped ether polygong mainnet
 		},
 	},
 0xd393b1e02da9831ff419e22ea105aae4c47e1253
-*/
-function DEX({
-	chain = "mumbai",
+
 	customTokens = {
 		"0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7": {
 			address: "0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7",
@@ -88,12 +86,23 @@ function DEX({
 			name: "fDAI",
 			symbol: "fDAI",
 		},
-		"0x2058a9d7613eee744279e3856ef0eada5fcbaa7e": {
-			address: "0x2058a9d7613eee744279e3856ef0eada5fcbaa7e",
-			decimals: 6,
+*/
+function DEX({
+	chain = "mumbai",
+	customTokens = {
+		"0x15f0ca26781c3852f8166ed2ebce5d18265cceb7": {
+			address: "0x15f0ca26781c3852f8166ed2ebce5d18265cceb7",
+			decimals: 18,
 			logoURI: "https://assets.coingecko.com/coins/images/9956/small/4943.png?1636636734",
-			name: "USDC",
-			symbol: "USDC",
+			name: "fDAI",
+			symbol: "fDAI",
+		},
+		"0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e": {
+			address: "0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e",
+			decimals: 6,
+			logoURI: "https://assets.coingecko.com/coins/images/22910/small/zip.png?1642949795",
+			name: "PIMP",
+			symbol: "PIMP",
 		},
 	},
 }) {
@@ -102,6 +111,8 @@ function DEX({
 	const { Moralis, isInitialized, chainId } = useMoralis();
 	const [isFromModalActive, setFromModalActive] = useState(false);
 	const [isToModalActive, setToModalActive] = useState(false);
+
+  const [successModal, setSuccessModal] = useState(false); 
 	const [fromToken, setFromToken] = useState();
 	// fromToken used for Price checks only, use fromTokenMumbai for swap
 	// const [fromTokenMumbai, setFromTokenMumbai] = useState();
@@ -187,7 +198,7 @@ function DEX({
 	// setting from token manually + setting to token manually
 	useEffect(() => {
 		setFromToken(customTokens["0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7"]);
-		setToToken(customTokens["0x2058a9d7613eee744279e3856ef0eada5fcbaa7e"]);
+		setToToken(customTokens["0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e"]);
 	}, []);
 
 	const ButtonState = useMemo(() => {
@@ -209,23 +220,29 @@ function DEX({
 	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	// }, [currentTrade]);
 
-	const PriceSwap = () => {
-		// const Quote = quote;
-		// if (!Quote || !tokenPricesUSD?.[toToken?.["address"]]) return null;
-		// console.log("hi");
-		// if (Quote?.statusCode === 400) return <>{Quote.message}</>;
-		// console.log(Quote);
-		// const { fromTokenAmount, toTokenAmount } = Quote;
-		const { symbol: fromSymbol } = fromToken;
-		// const { symbol: toSymbol } = toToken;
-		// const pricePerToken = parseFloat(
-		// 	tokenValue(fromTokenAmount, fromToken["decimals"]) / tokenValue(toTokenAmount, toToken["decimals"])
-		// ).toFixed(6);
-		return (
-			<Text style={styles.priceSwap}>
-				Price: <Text>{`1 ${fromTokenAmountUsd} = ${parseFloat(fromTokenAmountUsd)/1} ${fromSymbol} ($${tokenPricesUSD[[toToken["address"]]].toFixed(6)})`}</Text>
-			</Text>
-		);
+	const fundContract = async () => {
+		const wad = parseFloat(fromAmount) * 10 ** 18;
+    console.log(wad)
+
+    const contractAddress = "0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e"; 
+		if (window.ethereum) {
+      //let abiApprove = ["function fund(address _spender, uint256 _value) public returns (bool success)"]
+      let abi = contract.abi
+      console.log(abi)
+			const provider = new ethers.providers.Web3Provider(window.ethereum);
+			const signer = provider.getSigner();
+			let userAddress = await signer.getAddress();
+			console.log(userAddress);
+
+      const sparkFundContract = new ethers.Contract(contractAddress, abi, signer); 
+      //const sparkFundContract1 = new ethers.Contract(contractAddress, abiApprove, signer); 
+
+			// const approval = await sparkFundContract.approve(userAddress, fromAmount);
+
+			const tx = await sparkFundContract.fund(`${wad}`); 
+      setSuccessModal(true) 
+		}
+
 	};
 
 	return (
@@ -306,7 +323,7 @@ function DEX({
 								style={styles.input}
 								readOnly
 								value={
-									fromTokenAmountUsd && (parseFloat(fromAmount) * 53).toFixed(2)
+									fromTokenAmountUsd && (parseFloat(fromAmount) * 100).toFixed(2)
 									// quote
 									//   ? parseFloat(
 									//       Moralis?.Units?.FromWei(
@@ -318,7 +335,7 @@ function DEX({
 								}
 							/>
 							<Text style={{ fontWeight: "600", color: "#434343" }}>
-								{fromTokenAmountUsd && `Stake ~ ${(((parseFloat(fromAmount) * 53).toFixed(2) / 5000) * 100).toFixed(2)}%`}
+								{fromTokenAmountUsd && `Stake ~ ${(((parseFloat(fromAmount) * 100).toFixed(2) / 160000) * 100).toFixed(2)}%`}
 							</Text>
 						</div>
 						<Image
@@ -341,60 +358,14 @@ function DEX({
 								fontSize: "18px",
 							}}
 						>
-							TOK
+							PIMP
 						</Text>
-						{/* <Button
-              style={{
-                height: "fit-content",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                borderRadius: "0.6rem",
-                padding: "5px 10px",
-                fontWeight: "500",
-                fontSize: "17px",
-                gap: "7px",
-                border: "none",
-              }}
-              onClick={() => setToModalActive(true)}
-              type={toToken ? "default" : "primary"}
-            >
-              {toToken ? (
-                <Image
-                  src={
-                    toToken?.logoURI ||
-                    "https://etherscan.io/images/main/empty-token.png"
-                  }
-                  alt="nologo"
-                  width="30px"
-                  preview={false}
-                  style={{ borderRadius: "15px" }}
-                />
-              ) : (
-                <span>Select a token</span>
-              )}
-              <span>{toToken?.symbol}</span>
-              <Arrow />
-            </Button> */}
 					</div>
 				</Card>
-				{quote && (
-					<div>
-						<Text
-							style={{
-								display: "flex",
-								justifyContent: "space-between",
-								fontSize: "15px",
-								color: "#434343",
-								marginTop: "8px",
-								padding: "0 10px",
-							}}
-						>
-							Estimated Gas: <Text>{quote?.estimatedGas}</Text>
-						</Text>
-						<PriceSwap />
-					</div>
-				)}
+				<Text style={styles.priceSwap}>
+					{" "}
+					<span style={{ fontWeight: 600 }}>Conversion: </span>1 $DAI = 100 $PIMP
+				</Text>
 				<Button
 					type="primary"
 					size="large"
@@ -404,7 +375,7 @@ function DEX({
 						borderRadius: "0.6rem",
 						height: "50px",
 					}}
-					onClick={() => trySwap(currentTrade)}
+					onClick={fundContract}
 					disabled={!ButtonState.isActive}
 				>
 					{ButtonState.text}
@@ -421,16 +392,18 @@ function DEX({
 			>
 				<InchModal open={isFromModalActive} onClose={() => setFromModalActive(false)} setToken={setFromToken} tokenList={tokens} />
 			</Modal>
-			{/* <Modal
-				title="Select a token"
-				visible={isToModalActive}
-				onCancel={() => setToModalActive(false)}
+
+      <Modal
+				title="✅ Transaction successful"
+				visible={successModal}
+				onCancel={() => setSuccessModal(false)}
 				bodyStyle={{ padding: 0 }}
 				width="450px"
 				footer={null}
+				zIndex="1400"
 			>
-				<InchModal open={isToModalActive} onClose={() => setToModalActive(false)} setToken={setToToken} tokenList={tokens} />
-			</Modal> */}
+        <h1 style={{margin: "20px", fontSize: "20px"}}>You funded {fromAmount} $DAI for {fromAmount * 100} $PIMP!</h1>
+			</Modal>
 		</>
 	);
 }
