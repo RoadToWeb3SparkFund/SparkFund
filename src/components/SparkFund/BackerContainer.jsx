@@ -4,13 +4,14 @@ import { Typography, Button, Modal, Backdrop } from "@mui/material";
 import Account from "../Account/Account";
 import FundingInfo from "./FundingInfo";
 import { useMoralis } from "react-moralis";
+import DEX from "../DEX/DEX";
 
 const modalStyle = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: 500,
   bgcolor: "background.paper",
   borderRadius: "20px",
   boxShadow: 24,
@@ -43,12 +44,15 @@ function BackerContainer() {
           aria-describedby="modal-modal-description"
         >
           <Box sx={modalStyle}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-              Text in a modal
+            <Typography
+              sx={{ marginBottom: "20px" }}
+              id="modal-modal-title"
+              variant="h4"
+              component="h2"
+            >
+              Give
             </Typography>
-            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-              Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-            </Typography>
+            <DEX></DEX>
           </Box>
         </Modal>
       </Box>
