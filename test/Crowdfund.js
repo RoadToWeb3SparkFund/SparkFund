@@ -63,7 +63,7 @@ describe('Crowdfund', (accounts) => {
     // const funder_2 = accounts[4]
 
     await crowdfund.connect(funder_1).fund({
-      value: web3.utils.toWei('5', 'ether'),
+      value: web3.utils.toWei('1', 'ether'),
       from: await funder_1.getAddress(),
     })
 
@@ -78,9 +78,13 @@ describe('Crowdfund', (accounts) => {
 
     assert(balanceInContract > 0)
 
+    f = await web3.eth.getBalance(crowdfund.address)
+    console.log("contract balance: " + web3.utils.fromWei(f, 'ether'))
+
     await crowdfund.withdraw()
 
     recipientBalanceAfter = await web3.eth.getBalance(fundingRecipient)
+
 
     assert.equal(
       parseInt(recipientBalancePrior) + parseInt(balanceInContract),

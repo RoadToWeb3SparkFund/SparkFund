@@ -2,8 +2,13 @@
 pragma solidity ^0.7.0;
 
 import {Governable} from "../lib/Governable.sol";
+import {DaiToken} from "../interfaces/DaiToken.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ICFACrowdfund} from "../interfaces/ICFACrowdfund.sol";
+
+import {
+    ISuperToken
+} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol";
 
 contract Crowdfund is Governable, ERC20 {
     //======== Vars ========
@@ -19,6 +24,9 @@ contract Crowdfund is Governable, ERC20 {
     uint256 public operatorPercent;
     uint256 public fixedPercent;
     Status public status;
+    DaiToken fdaitoken;
+    DaiToken fdaitokenx;
+
 
     //======== Interfaces ====
     ICFACrowdfund public cfa;
@@ -54,12 +62,19 @@ contract Crowdfund is Governable, ERC20 {
         tokenScale = tokenScale_;
         fixedPercent = fixedPercent_;
 
+        fdaitoken = DaiToken(0x59b670e9fA9D0A427751Af201D676719a970857b); 
+        fdaitokenx = DaiToken(0x1f65B7b9b3ADB4354fF76fD0582bB6b0d046a41c); 
+
         emit newCrowdfund(address(this));
     }
 
     // ============ Funding Methods ============
     function fund() external payable {
         uint256 amount = msg.value / 10**18;
+
+        // send dai from user wallet to us
+        fdaitoken.transferFrom(msg.sender, address(this), amount);
+
         _fund(amount);
     }
 
@@ -90,7 +105,21 @@ contract Crowdfund is Governable, ERC20 {
     }
 
     function withdraw() public {
-        payable(fundingRecipient).transfer(address(this).balance);
+        uint256 fixedAmount = address(this).balance / (100 - fixedPercent); 
+        uint256 streamingAmount = address(this).balance - fixedAmount; 
+
+        // payable(fundingRecipient).transfer(address(this).balance);
+        payable(fundingRecipient).transfer(fixedAmount);
+
+        // ideal flow
+        ERC20(fdaitoken).approve(fdaitokenx, streamingAmount); 
+        cfa.createFlow(ISuperToken(fdaitokenx).upgrade(streamingAmount), fundingReceiver, flowRate);
+
+
+        // ERC20(0x59b670e9fA9D0A427751Af201D676719a970857b)
+            // .approve(0x1f65B7b9b3ADB4354fF76fD0582bB6b0d046a41c, 1); 
+        // ISuperToken(0x1f65B7b9b3ADB4354fF76fD0582bB6b0d046a41c).upgrade(1);
+
     }
 
     // ============ Internal Methods  ============
@@ -101,6 +130,7 @@ contract Crowdfund is Governable, ERC20 {
 
         if (address(this).balance <= fundingCap) {
             _mint(funder, valueToTokens(amount));
+            
 
             emit Contribution(funder, amount);
         } else {
