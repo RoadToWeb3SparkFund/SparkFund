@@ -2,11 +2,10 @@ import React from "react";
 import Box from "@mui/material/Box";
 import { Typography, Button, Modal, Backdrop } from "@mui/material";
 import Account from "../Account/Account";
-import DexModal from "./DexModal";
 import FundingInfo from "./FundingInfo";
 import { useMoralis } from "react-moralis";
 
-const style = {
+const modalStyle = {
   position: "absolute",
   top: "50%",
   left: "50%",
@@ -43,7 +42,7 @@ function BackerContainer() {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-          <Box sx={style}>
+          <Box sx={modalStyle}>
             <Typography id="modal-modal-title" variant="h6" component="h2">
               Text in a modal
             </Typography>
