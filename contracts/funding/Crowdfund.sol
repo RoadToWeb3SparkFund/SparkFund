@@ -2,13 +2,12 @@
 pragma solidity ^0.7.0;
 
 import {Governable} from "../lib/Governable.sol";
-import {DaiToken} from "../interfaces/DaiToken.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ICFACrowdfund} from "../interfaces/ICFACrowdfund.sol";
+import "hardhat/console.sol";
 
-import {
-    ISuperToken
-} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol";
+import {ISuperToken} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol";
 
 contract Crowdfund is Governable, ERC20 {
     //======== Vars ========
@@ -17,16 +16,15 @@ contract Crowdfund is Governable, ERC20 {
         CLOSED
     }
 
-    uint16 public tokenScale;
     address payable public operator;
     address payable public fundingRecipient;
     uint256 public fundingCap;
     uint256 public operatorPercent;
+    uint256 public tokenScale;
     uint256 public fixedPercent;
     Status public status;
-    DaiToken fdaitoken;
-    DaiToken fdaitokenx;
-
+    IERC20 fDaiToken;
+    IERC20 fDaiXToken;
 
     //======== Interfaces ====
     ICFACrowdfund public cfa;
@@ -35,7 +33,7 @@ contract Crowdfund is Governable, ERC20 {
     event Contribution(address contributor, uint256 amount);
     event FundingClosed(uint256 amountRaised, uint256 creatorAllocation);
     event newCrowdfund(address crowdfund);
-    event DaiBalance(uint);
+    event DaiBalance(uint256);
 
     // ============ Modifiers ============
     modifier onlyOperator() {
@@ -50,9 +48,11 @@ contract Crowdfund is Governable, ERC20 {
         address payable operator_,
         address payable fundingRecipient_,
         address cfa_,
+        address fDaiToken_,
+        address fDaiXToken_,
         uint256 fundingCap_,
         uint256 operatorPercent_,
-        uint16 tokenScale_,
+        uint256 tokenScale_,
         uint256 fixedPercent_
     ) ERC20(name, symbol) Governable(operator_) {
         operator = operator_;
@@ -63,25 +63,19 @@ contract Crowdfund is Governable, ERC20 {
         tokenScale = tokenScale_;
         fixedPercent = fixedPercent_;
 
-        fdaitoken = DaiToken(0x59b670e9fA9D0A427751Af201D676719a970857b); 
-        fdaitokenx = DaiToken(0x1f65B7b9b3ADB4354fF76fD0582bB6b0d046a41c); 
+        fDaiToken = IERC20(fDaiToken_);
+        fDaiXToken = IERC20(fDaiXToken_);
 
         emit newCrowdfund(address(this));
     }
 
     // ============ Funding Methods ============
-    function fund() external payable {
-        uint256 amount = msg.value / 10**18;
-
-        // send dai from user wallet to us
-        // emit DaiBalance(fdaitoken.balanceOf(msg.sender));
-        // fdaitoken.transferFrom(msg.sender, address(this), amount);
-
+    function fund(uint256 amount) external {
         _fund(amount);
     }
 
     function valueToTokens(uint256 value) public view returns (uint256 tokens) {
-        tokens = value * tokenScale;
+        tokens = value / tokenScale;
     }
 
     // ============ Operator Methods ============
@@ -107,45 +101,51 @@ contract Crowdfund is Governable, ERC20 {
     }
 
     function withdraw() public {
-        uint256 fixedAmount = address(this).balance / (100 - fixedPercent); 
-        uint256 streamingAmount = address(this).balance - fixedAmount; 
+        uint256 currentBalance = fDaiToken.balanceOf(address(this));
+
+        console.log("currentBalance", currentBalance);
+
+        console.log("fixedPercent", fixedPercent);
+
+        uint256 fixedAmount = (currentBalance / 100) * 20;
+
+        console.log("FixedAmount", fixedAmount);
+
+        uint256 streamingAmount = currentBalance - fixedAmount;
+
+        console.log("Withdrawing", fixedAmount);
 
         // payable(fundingRecipient).transfer(address(this).balance);
-        payable(fundingRecipient).transfer(fixedAmount);
+        fDaiToken.approve(fundingRecipient, fixedAmount);
+        fDaiToken.transfer(fundingRecipient, fixedAmount);
 
         // ideal flow
-        ERC20(address(fdaitoken)).approve(address(fdaitokenx), streamingAmount); 
+        // ERC20(address(fdaitoken)).approve(address(fdaitokenx), streamingAmount);
         // cfa.createFlow(ISuperToken(address(fdaitokenx)).upgrade(streamingAmount), fundingRecipient, 1);
 
-
         // ERC20(0x59b670e9fA9D0A427751Af201D676719a970857b)
-            // .approve(0x1f65B7b9b3ADB4354fF76fD0582bB6b0d046a41c, 1); 
+        // .approve(0x1f65B7b9b3ADB4354fF76fD0582bB6b0d046a41c, 1);
         // ISuperToken(0x1f65B7b9b3ADB4354fF76fD0582bB6b0d046a41c).upgrade(1);
-
     }
 
     // ============ Internal Methods  ============
     function _fund(uint256 amount) private {
         require(status == Status.FUNDING, "Crowdfund: Funding must be open");
-
+        require(
+            amount <= fundingCap,
+            "This transaction will go over the funding cap of the project"
+        );
         address funder = msg.sender;
 
-        if (address(this).balance <= fundingCap) {
-            _mint(funder, valueToTokens(amount));
-            
+        console.log(
+            "Sender balance is %s tokens",
+            fDaiToken.balanceOf(msg.sender)
+        );
 
-            emit Contribution(funder, amount);
-        } else {
-            uint256 startAmount = address(this).balance - amount;
-            require(
-                startAmount < fundingCap,
-                "Crowdfund: Funding cap already reached"
-            );
-            uint256 eligibleAmount = fundingCap - startAmount;
-            _mint(funder, valueToTokens(eligibleAmount));
+        require(fDaiToken.balanceOf(funder) >= amount, "test");
+        fDaiToken.transferFrom(funder, address(this), amount);
+        _mint(funder, valueToTokens(amount));
 
-            emit Contribution(funder, eligibleAmount);
-            payable(funder).transfer(address(this).balance);
-        }
+        emit Contribution(funder, amount);
     }
 }

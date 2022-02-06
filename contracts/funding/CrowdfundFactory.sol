@@ -15,9 +15,11 @@ contract CrowdfundFactory is Ownable {
         address payable operator_,
         address payable fundingRecipient_,
         address cfa_,
+        address fDaiToken_,
+        address fDaiXToken_,
         uint256 fundingCap_,
         uint256 operatorPercent_,
-        uint16 tokenScale_,
+        uint256 tokenScale_,
         uint256 fixedPercent_
     ) external onlyOwner returns (address) {
         Crowdfund crowdfund = new Crowdfund(
@@ -26,6 +28,8 @@ contract CrowdfundFactory is Ownable {
             operator_,
             fundingRecipient_,
             cfa_,
+            fDaiToken_,
+            fDaiXToken_,
             fundingCap_,
             operatorPercent_,
             tokenScale_,

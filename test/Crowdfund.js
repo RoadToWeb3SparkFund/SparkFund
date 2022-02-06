@@ -1,5 +1,6 @@
-const { expect } = require('chai')
+const { expect, assert } = require('chai')
 const setupContracts = require('./helpers/setupContracts')
+const { web3tx, toWad, toBN, wad4human } = require('@decentral.ee/web3-helpers')
 
 describe('Crowdfund', (accounts) => {
   let sf
@@ -9,7 +10,7 @@ describe('Crowdfund', (accounts) => {
   let funder
   let operator
   let fundingRecipient
-  let fixedPercent;
+  let fixedPercent
 
   before(async function () {
     setupConfigs = await setupContracts()
@@ -17,82 +18,63 @@ describe('Crowdfund', (accounts) => {
     dai = setupConfigs.dai
     daix = setupConfigs.daix
     crowdfund = setupConfigs.crowdfund
-    
+
     operator = setupConfigs.owner
     fundingRecipient = setupConfigs.fundingRecipient
     funder = setupConfigs.funder
-    fixedPercent = setupConfigs.fixedPercent;
+    fixedPercent = setupConfigs.fixedPercent
   })
 
-  it('should allow setting of recipient and operator on contract', async () => {
-    // assert.equal(operator, await crowdfund.operator.call())
-    assert.equal(fundingRecipient, await crowdfund.fundingRecipient.call())
+  beforeEach(async function () {
+    funderAddress = funder.address
+    // Approve and add transactions
+
+    await web3tx(
+      dai.approve,
+      `Account owner approves contract`,
+    )(crowdfund.address, toWad(200), { from: funderAddress })
+
+    console.log('toWad200', parseInt(toWad(200)))
+    await crowdfund.connect(funder).fund(toWad(200).toString())
+
+    await web3tx(
+      dai.approve,
+      `Account owner approves contract`,
+    )(crowdfund.address, toWad(300), { from: funderAddress })
+
+    await crowdfund.connect(funder).fund(toWad(300).toString())
   })
 
   it('Should allow user to fund project ', async () => {
+    assert.equal(
+      parseInt(await crowdfund.connect(funder).balanceOf(funderAddress)),
+      50000,
+    )
 
-    const [funder] = await ethers.getSigners()
-    funderAddress = await funder.getAddress()
-    funderBalance = await funder.getBalance()
-
-    console.log({ 
-      "funderAddress": funderAddress,
-      "balance": funderBalance
-    })
-
-    await crowdfund.connect(funder).fund({
-      value: web3.utils.toWei('1', 'ether'),
-      from: funderAddress,
-    })
-    assert.equal(await crowdfund.connect(funder).balanceOf(funderAddress), 1000)
-
-    console.log({ 
-      "funderAddress": funderAddress,
-      "balance": funderBalance
-    })
-
-    await crowdfund.connect(funder).fund({
-      value: web3.utils.toWei('1', 'ether'),
-      from: funderAddress,
-    })
-    assert.equal(await crowdfund.connect(funder).balanceOf(funderAddress), 2000)
- 
+    assert.equal(
+      (await dai.balanceOf(crowdfund.address)).toString(),
+      toWad(500).toString(),
+    )
   })
 
   it('Should allow owner to withdraw ', async () => {
-    const [funder_1, funder_2] = await ethers.getSigners()
-    // const funder_1 = accounts[3]
-    // const funder_2 = accounts[4]
+    recipientBalancePrior = await dai.balanceOf(fundingRecipient)
 
-    await crowdfund.connect(funder_1).fund({
-      value: web3.utils.toWei('1', 'ether'),
-      from: await funder_1.getAddress(),
-    })
+    console.log('Balance prior is %s', recipientBalancePrior)
 
-    await crowdfund.connect(funder_2).fund({
-      value: web3.utils.toWei('1', 'ether'),
-      from: await funder_2.getAddress(),
-    })
-
-    recipientBalancePrior = await web3.eth.getBalance(fundingRecipient)
-
-    balanceInContract = await web3.eth.getBalance(crowdfund.address)
+    balanceInContract = await dai.balanceOf(crowdfund.address)
+    expectedPercentage = (parseInt(balanceInContract) / 100) * 20
+    console.log('Balance in contract %s', balanceInContract)
 
     assert(balanceInContract > 0)
 
-    f = await web3.eth.getBalance(crowdfund.address)
-    console.log("contract balance: " + web3.utils.fromWei(f, 'ether'))
-
     await crowdfund.withdraw()
 
-    recipientBalanceAfter = await web3.eth.getBalance(fundingRecipient)
+    recipientBalanceAfter = await dai.balanceOf(fundingRecipient)
 
-
-    // assert.equal(
-    //   // parseInt(recipientBalancePrior) + parseInt(balanceInContract),
-    //   // parseInt(recipientBalanceAfter),
-    //   recipientBalancePrior + (balanceInContract / (100 - fixedPercent)) ,
-    //   recipientBalanceAfter,
-    // )
+    assert.equal(
+      parseInt(recipientBalancePrior) + expectedPercentage,
+      recipientBalanceAfter,
+    )
   })
 })
