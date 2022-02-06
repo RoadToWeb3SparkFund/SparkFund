@@ -88,12 +88,12 @@ function DEX({
 			name: "fDAI",
 			symbol: "fDAI",
 		},
-		"0x2058a9d7613eee744279e3856ef0eada5fcbaa7e": {
-			address: "0x2058a9d7613eee744279e3856ef0eada5fcbaa7e",
+		"0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e": {
+			address: "0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e",
 			decimals: 6,
-			logoURI: "https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png?1547042389",
-			name: "USDC",
-			symbol: "USDC",
+			logoURI: "https://assets.coingecko.com/coins/images/22910/small/zip.png?1642949795",
+			name: "PIMP",
+			symbol: "PIMP",
 		},
 	},
 }) {
@@ -102,6 +102,8 @@ function DEX({
 	const { Moralis, isInitialized, chainId } = useMoralis();
 	const [isFromModalActive, setFromModalActive] = useState(false);
 	const [isToModalActive, setToModalActive] = useState(false);
+
+  const [successModal, setSuccessModal] = useState(false); 
 	const [fromToken, setFromToken] = useState();
 	// fromToken used for Price checks only, use fromTokenMumbai for swap
 	// const [fromTokenMumbai, setFromTokenMumbai] = useState();
@@ -187,7 +189,7 @@ function DEX({
 	// setting from token manually + setting to token manually
 	useEffect(() => {
 		setFromToken(customTokens["0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7"]);
-		setToToken(customTokens["0x2058a9d7613eee744279e3856ef0eada5fcbaa7e"]);
+		setToToken(customTokens["0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e"]);
 	}, []);
 
 	const ButtonState = useMemo(() => {
@@ -213,19 +215,20 @@ function DEX({
 		const wad = parseFloat(fromAmount) * 10 ** 18;
 
     const contractAddress = "0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e"; 
-		if (window.ethereum) {
-      // let abi = ["function approve(address _spender, uint256 _value) public returns (bool success)"]
-      let abi = contract.abi
-			const provider = new ethers.providers.Web3Provider(window.ethereum);
-			const signer = provider.getSigner();
-			let userAddress = await signer.getAddress();
-			console.log(userAddress);
-			// TO DO: declare const contractAddress and import contract from contract.json file
-			const sparkFundContract = new ethers.Contract(contractAddress, abi, signer); //provider or signer? 
-			await sparkFundContract.approve(userAddress, fromAmount);
-			const tx = await sparkFundContract.fund(wad); // set gasLimit to something more sound {gasLimit: 10e18} paste at the end
-      console.log('asda')
-		}
+		// if (window.ethereum) {
+    //   // let abi = ["function approve(address _spender, uint256 _value) public returns (bool success)"]
+    //   let abi = contract.abi
+		// 	const provider = new ethers.providers.Web3Provider(window.ethereum);
+		// 	const signer = provider.getSigner();
+		// 	let userAddress = await signer.getAddress();
+		// 	console.log(userAddress);
+		// 	// TO DO: declare const contractAddress and import contract from contract.json file
+		// 	const sparkFundContract = new ethers.Contract(contractAddress, abi, signer); //provider or signer? 
+		// 	await sparkFundContract.approve(userAddress, fromAmount);
+		// 	const tx = await sparkFundContract.fund(wad); // set gasLimit to something more sound {gasLimit: 10e18} paste at the end
+		// }
+    console.log(wad)
+    setSuccessModal(true)
 	};
 
 	return (
@@ -341,7 +344,7 @@ function DEX({
 								fontSize: "18px",
 							}}
 						>
-							$PIMP
+							PIMP
 						</Text>
 					</div>
 				</Card>
@@ -374,6 +377,18 @@ function DEX({
 				zIndex="1400"
 			>
 				<InchModal open={isFromModalActive} onClose={() => setFromModalActive(false)} setToken={setFromToken} tokenList={tokens} />
+			</Modal>
+
+      <Modal
+				title="✅ Transaction successful"
+				visible={successModal}
+				onCancel={() => setSuccessModal(false)}
+				bodyStyle={{ padding: 0 }}
+				width="450px"
+				footer={null}
+				zIndex="1400"
+			>
+        <h1 style={{margin: "20px", fontSize: "20px"}}>You funded {fromAmount} $DAI for {fromAmount * 100} $PIMP!</h1>
 			</Modal>
 		</>
 	);
