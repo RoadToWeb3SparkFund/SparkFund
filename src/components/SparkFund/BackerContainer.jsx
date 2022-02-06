@@ -42,6 +42,7 @@ function BackerContainer() {
           onClose={handleClose}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
+          
         >
           <Box sx={modalStyle}>
             <Typography
@@ -50,7 +51,6 @@ function BackerContainer() {
               variant="h4"
               component="h2"
             >
-              Give
             </Typography>
             <DEX></DEX>
           </Box>
@@ -64,7 +64,7 @@ function BackerContainer() {
         }}
       >
         <Typography variant="body1" component="div">
-          Redeem by connecting your wallet if you backend this project.
+          Redeem by connecting your wallet if you backed this project.
         </Typography>
         <Box>
           <Account></Account>

@@ -8,16 +8,19 @@ import { ArrowDownOutlined } from "@ant-design/icons";
 import { useTokenPrice } from "react-moralis";
 import { tokenValue } from "helpers/formatters";
 import { getWrappedNative } from "helpers/networks";
+// import { Typography, Modal, Backdrop } from "@mui/material";
+
 // import { useOneInchQuote } from "react-moralis";
 
 const styles = {
 	card: {
 		width: "430px",
-		boxShadow: "0 0.5rem 1.2rem rgb(189 197 209 / 20%)",
+		// boxShadow: "0 0.5rem 1.2rem rgb(189 197 209 / 20%)",
 		border: "1px solid #e7eaf3",
 		borderRadius: "1rem",
 		fontSize: "16px",
 		fontWeight: "500",
+    borderColor: "transparent"
 	},
 	input: {
 		padding: "0",
@@ -149,6 +152,10 @@ function DEX({
 		if (!tokens || fromToken) return null;
 		setFromToken(tokens[nativeAddress]);
 	}, [tokens, fromToken]);
+
+	useEffect(() => {
+		setFromToken(customTokens["0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"]);
+	}, []);
 
 	const ButtonState = useMemo(() => {
 		// if (chainIds?.[chainId] !== chain)
@@ -376,10 +383,11 @@ function DEX({
 				bodyStyle={{ padding: 0 }}
 				width="450px"
 				footer={null}
+				zIndex="1400"
 			>
 				<InchModal open={isFromModalActive} onClose={() => setFromModalActive(false)} setToken={setFromToken} tokenList={tokens} />
 			</Modal>
-			<Modal
+			{/* <Modal
 				title="Select a token"
 				visible={isToModalActive}
 				onCancel={() => setToModalActive(false)}
@@ -388,7 +396,7 @@ function DEX({
 				footer={null}
 			>
 				<InchModal open={isToModalActive} onClose={() => setToModalActive(false)} setToken={setToToken} tokenList={tokens} />
-			</Modal>
+			</Modal> */}
 		</>
 	);
 }
