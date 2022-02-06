@@ -3,6 +3,8 @@ const deployTestToken = require('@superfluid-finance/ethereum-contracts/scripts/
 const deploySuperToken = require('@superfluid-finance/ethereum-contracts/scripts/deploy-super-token')
 const SuperfluidSDK = require('@superfluid-finance/js-sdk')
 const { ethers } = require('hardhat')
+const { web3tx, toWad, toBN } = require("@decentral.ee/web3-helpers");
+
 
 module.exports = async function setupContracts() {
   const [ownerSign, fundSign, funderSign] = await ethers.getSigners()
@@ -52,6 +54,37 @@ module.exports = async function setupContracts() {
   crowdfundContract = await ethers.getContractFactory('Crowdfund')
   crowdfund = await crowdfundContract.attach(ContractReceipt.events[1].address)
 
+
+  // if (!dai) {
+    // const daiAddress = await sf.tokens.fDAI.address;
+    // dai = await sf.contracts.TestToken.at(daiAddress);
+    // for (let i = 0; i < accounts.length; ++i) {
+        await web3tx(dai.mint, `owner mints many dai`)(
+            owner,
+            toWad(10000000),
+            { from: owner }
+        );
+
+        await web3tx(
+          dai.approve,
+          `Account owner approves daix`
+      )(daix.address, toWad(100), { from: owner });
+    // }
+// }
+
+  
+  // const totalSupply = (10 ** 9).toString()
+		
+  // await dai.mint(100000)
+  // await dai.transfer(owner, 50);
+  // console.log({
+  //   "YESSdS": await dai.balanceOf(owner)
+  // });
+
+  // console.log({
+  //   "YESSS": await daix.balanceOf(owner)
+  // });
+
   return {
     sf: sf,
     daix: daix,
@@ -59,7 +92,8 @@ module.exports = async function setupContracts() {
     crowdfund: crowdfund,
     funder: funder,
     operator: owner,
-    fundingRecipient: fundingRecipient
+    fundingRecipient: fundingRecipient,
+    fixedPercent: fixedPercent
   }
 }
 

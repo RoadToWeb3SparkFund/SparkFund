@@ -723,8 +723,8 @@
       ]
     },
     "/Users/rahulnakre/Documents/SparkFund/contracts/funding/Crowdfund.sol": {
-      "lastModificationDate": 1644105688863,
-      "contentHash": "4d54a3b84847a52846fed6a29f9b02fa",
+      "lastModificationDate": 1644120823127,
+      "contentHash": "d9900e64ab3e76363481fc7ba3a0d9ed",
       "sourceName": "contracts/funding/Crowdfund.sol",
       "solcConfig": {
         "version": "0.7.4",

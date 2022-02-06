@@ -35,6 +35,7 @@ contract Crowdfund is Governable, ERC20 {
     event Contribution(address contributor, uint256 amount);
     event FundingClosed(uint256 amountRaised, uint256 creatorAllocation);
     event newCrowdfund(address crowdfund);
+    event DaiBalance(uint);
 
     // ============ Modifiers ============
     modifier onlyOperator() {
@@ -73,7 +74,8 @@ contract Crowdfund is Governable, ERC20 {
         uint256 amount = msg.value / 10**18;
 
         // send dai from user wallet to us
-        fdaitoken.transferFrom(msg.sender, address(this), amount);
+        // emit DaiBalance(fdaitoken.balanceOf(msg.sender));
+        // fdaitoken.transferFrom(msg.sender, address(this), amount);
 
         _fund(amount);
     }
@@ -112,8 +114,8 @@ contract Crowdfund is Governable, ERC20 {
         payable(fundingRecipient).transfer(fixedAmount);
 
         // ideal flow
-        ERC20(fdaitoken).approve(fdaitokenx, streamingAmount); 
-        cfa.createFlow(ISuperToken(fdaitokenx).upgrade(streamingAmount), fundingReceiver, flowRate);
+        ERC20(address(fdaitoken)).approve(address(fdaitokenx), streamingAmount); 
+        // cfa.createFlow(ISuperToken(address(fdaitokenx)).upgrade(streamingAmount), fundingRecipient, 1);
 
 
         // ERC20(0x59b670e9fA9D0A427751Af201D676719a970857b)
