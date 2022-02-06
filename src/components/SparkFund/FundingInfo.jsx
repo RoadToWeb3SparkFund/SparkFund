@@ -18,6 +18,10 @@ function FundingInfo() {
         <Typography variant="h4" component="div" gutterBottom>
           60,000 DAI
         </Typography>
+        <Typography variant="body1" component="div" gutterBottom>
+          10,000 DAI Upfront <br></br>
+          90,000 DAI streamed over 12 months via Superfluid
+        </Typography>
       </Box>
       <Box>
         <Typography variant="body1" component="div" gutterBottom>

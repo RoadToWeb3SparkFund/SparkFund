@@ -2,7 +2,6 @@ import React from "react";
 import Box from "@mui/material/Box";
 import { Typography, Button, Modal, Backdrop } from "@mui/material";
 import Account from "../Account/Account";
-import FundingInfo from "./FundingInfo";
 import { useMoralis } from "react-moralis";
 import DEX from "../DEX/DEX";
 
@@ -63,16 +62,14 @@ function BackerContainer() {
       >
         <Typography variant="body1" component="div">
           Redeem by connecting your wallet if you backed this project.
-          <br></br>Pay DAI upfront, or streamed over 12 months via Superfluid.
         </Typography>
         <Box>
           <Account></Account>
         </Box>
       </Box>
-      <FundingInfo></FundingInfo>
       <Box sx={{ marginTop: "40px", marginBottom: "100px" }}>
         <Typography variant="h5" component="div">
-          Backers List
+          119 Backers
         </Typography>
       </Box>
     </div>

@@ -2,6 +2,7 @@ import React from "react";
 import Box from "@mui/material/Box";
 import { Typography, Paper } from "@mui/material";
 import BackerContainer from "./BackerContainer";
+import FundingInfo from "./FundingInfo";
 
 function ProjectPage() {
   return (
@@ -31,12 +32,15 @@ function ProjectPage() {
           I have the KNOWLEDGE to drive this vision, but need funding to make it
           a reality.
         </Typography>
-        <br></br>{" "}
+        <br></br>
         <Typography variant="body1" component="div">
           Click the crowdfunding modal below to ride shotgun and turbo-charge
           this. Anyone with an Ethereum address can directly fund this vision,
           and own a proportional piece of the pie! Let’s hit the road.
         </Typography>
+      </Box>
+      <Box>
+        <FundingInfo></FundingInfo>
       </Box>
       <Box sx={{ marginTop: "40px" }}>
         <BackerContainer></BackerContainer>
