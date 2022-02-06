@@ -45,6 +45,7 @@ const chainIds = {
 	"0x1": "eth",
 	"0x38": "bsc",
 	"0x89": "polygon",
+  "0x80001": "mumbai" 
 };
 
 const getChainIdByName = (chainName) => {
@@ -65,16 +66,27 @@ const IsNative = (address) => address === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 			symbol: "ETH",
 		},
 }
-*/
-function DEX({
-	chain = "polygon",
-	customTokens = {
+wrapped ether polygong mainnet
+{
 		"0x7ceb23fd6bc0add59e62ac25578270cff1b9f619": {
 			address: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
 			decimals: 18,
 			logoURI: "https://assets.coingecko.com/coins/images/279/small/ethereum.png?1595348880",
 			name: "Wrapped Ether",
 			symbol: "WETH",
+		},
+	},
+0xd393b1e02da9831ff419e22ea105aae4c47e1253
+*/
+function DEX({
+	chain = "mumbai",
+	customTokens = {
+		"0xd393b1e02da9831ff419e22ea105aae4c47e1253": {
+			address: "0xd393b1e02da9831ff419e22ea105aae4c47e1253",
+			decimals: 18,
+			logoURI: "https://assets.coingecko.com/coins/images/9956/small/4943.png?1636636734",
+			name: "DAI",
+			symbol: "DAI",
 		},
 	},
 }) {
@@ -84,6 +96,9 @@ function DEX({
 	const [isFromModalActive, setFromModalActive] = useState(false);
 	const [isToModalActive, setToModalActive] = useState(false);
 	const [fromToken, setFromToken] = useState();
+  // fromToken used for Price checks only, use fromTokenMumbai for swap
+  // const [fromTokenMumbai, setFromTokenMumbai] = useState();
+
 	const [toToken, setToToken] = useState();
 	const [fromAmount, setFromAmount] = useState();
 	const [quote, setQuote] = useState();
@@ -120,8 +135,12 @@ function DEX({
 	// tokenPrices
 	useEffect(() => {
 		if (!isInitialized || !fromToken || !chain) return null;
-		const validatedChain = chain ? getChainIdByName(chain) : chainId;
-		const tokenAddress = IsNative(fromToken["address"]) ? getWrappedNative(validatedChain) : fromToken["address"];
+		// const validatedChain = chain ? getChainIdByName(chain) : chainId;
+    // manually set chainId
+    const validatedChain = "0x89"
+		// const tokenAddress = IsNative(fromToken["address"]) ? getWrappedNative(validatedChain) : fromToken["address"];
+    // manually set tokenAddress
+    const tokenAddress = "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063"
 		fetchTokenPrice({
 			params: { chain: validatedChain, address: tokenAddress },
 			onSuccess: (price) =>
@@ -153,6 +172,7 @@ function DEX({
 		setFromToken(tokens[nativeAddress]);
 	}, [tokens, fromToken]);
 
+  // setting from token manually
 	useEffect(() => {
 		setFromToken(customTokens["0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"]);
 	}, []);
