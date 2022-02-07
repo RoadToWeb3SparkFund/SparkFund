@@ -112,7 +112,7 @@ function DEX({
 	const [isFromModalActive, setFromModalActive] = useState(false);
 	const [isToModalActive, setToModalActive] = useState(false);
 
-  const [successModal, setSuccessModal] = useState(false); 
+	const [successModal, setSuccessModal] = useState(false);
 	const [fromToken, setFromToken] = useState();
 	// fromToken used for Price checks only, use fromTokenMumbai for swap
 	// const [fromTokenMumbai, setFromTokenMumbai] = useState();
@@ -222,24 +222,24 @@ function DEX({
 
 	const fundContract = async () => {
 		const wad = parseFloat(fromAmount) * 10 ** 18;
-    console.log(wad)
+		console.log(wad);
 
-    const contractAddress = "0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e"; 
+		const contractAddress = "0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e";
 		if (window.ethereum) {
-      let abiApprove = ["function approve(address _spender, uint256 _value) public returns (bool success)"]
-      // let abi = contract.abi
+			let abi = contract.abi;
 			const provider = new ethers.providers.Web3Provider(window.ethereum);
 			const signer = provider.getSigner();
 			let userAddress = await signer.getAddress();
 			console.log(userAddress);
 
-      // const sparkFundContract = new ethers.Contract(contractAddress, abi, signer); 
-      const sparkFundContract1 = new ethers.Contract(contractAddress, abiApprove, signer); 
-			const approval = await sparkFundContract1.approve(userAddress, fromAmount);
+			const sparkFundContract = new ethers.Contract(contractAddress, abi, signer);
 
-			// const approval = await sparkFundContract.approve(userAddress, fromAmount);
-			// const tx = await sparkFundContract.fund(`${wad}`); 
-      setSuccessModal(true) 
+			const approval = await sparkFundContract.approve(userAddress, fromAmount);
+			// const tx = await sparkFundContract.fund("1", {
+			// 	gasPrice: 10,
+			// 	gasLimit: 9000,
+			// });
+			setSuccessModal(true);
 		}
 	};
 
@@ -391,7 +391,7 @@ function DEX({
 				<InchModal open={isFromModalActive} onClose={() => setFromModalActive(false)} setToken={setFromToken} tokenList={tokens} />
 			</Modal>
 
-      <Modal
+			<Modal
 				title="✅ Transaction successful"
 				visible={successModal}
 				onCancel={() => setSuccessModal(false)}
@@ -400,7 +400,9 @@ function DEX({
 				footer={null}
 				zIndex="1400"
 			>
-        <h1 style={{margin: "20px", fontSize: "20px"}}>You funded {fromAmount} $DAI for {fromAmount * 100} $PIMP!</h1>
+				<h1 style={{ margin: "20px", fontSize: "20px" }}>
+					You funded {fromAmount} $DAI for {fromAmount * 100} $PIMP!
+				</h1>
 			</Modal>
 		</>
 	);
