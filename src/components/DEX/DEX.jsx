@@ -221,8 +221,7 @@ function DEX({
 	// }, [currentTrade]);
 
 	const fundContract = async () => {
-		const wad = parseFloat(fromAmount) * 10 ** 18;
-		console.log(wad);
+		const wad = ethers.utils.parseUnits(`${fromAmount}`, 18); 
 
 		const contractAddress = "0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e";
 		if (window.ethereum) {
@@ -234,11 +233,10 @@ function DEX({
 
 			const sparkFundContract = new ethers.Contract(contractAddress, abi, signer);
 
-			const approval = await sparkFundContract.approve(userAddress, fromAmount);
-			// const tx = await sparkFundContract.fund("1", {
-			// 	gasPrice: 10,
-			// 	gasLimit: 9000,
-			// });
+			const approval = await sparkFundContract.approve(userAddress, wad);
+			const tx = await sparkFundContract.fund(wad, {
+				gasLimit: 90000000,
+			});
 			setSuccessModal(true);
 		}
 	};
