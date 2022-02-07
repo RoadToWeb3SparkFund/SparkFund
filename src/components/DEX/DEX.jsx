@@ -197,7 +197,7 @@ function DEX({
 
 	// setting from token manually + setting to token manually
 	useEffect(() => {
-		setFromToken(customTokens["0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7"]);
+		setFromToken(customTokens["0x15f0ca26781c3852f8166ed2ebce5d18265cceb7"]);
 		setToToken(customTokens["0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e"]);
 	}, []);
 
@@ -226,23 +226,21 @@ function DEX({
 
     const contractAddress = "0x07979aEdb43DC042171bB1BE8A0DeF4F64DC4A9e"; 
 		if (window.ethereum) {
-      //let abiApprove = ["function fund(address _spender, uint256 _value) public returns (bool success)"]
-      let abi = contract.abi
-      console.log(abi)
+      let abiApprove = ["function approve(address _spender, uint256 _value) public returns (bool success)"]
+      // let abi = contract.abi
 			const provider = new ethers.providers.Web3Provider(window.ethereum);
 			const signer = provider.getSigner();
 			let userAddress = await signer.getAddress();
 			console.log(userAddress);
 
-      const sparkFundContract = new ethers.Contract(contractAddress, abi, signer); 
-      //const sparkFundContract1 = new ethers.Contract(contractAddress, abiApprove, signer); 
+      // const sparkFundContract = new ethers.Contract(contractAddress, abi, signer); 
+      const sparkFundContract1 = new ethers.Contract(contractAddress, abiApprove, signer); 
+			const approval = await sparkFundContract1.approve(userAddress, fromAmount);
 
 			// const approval = await sparkFundContract.approve(userAddress, fromAmount);
-
-			const tx = await sparkFundContract.fund(`${wad}`); 
+			// const tx = await sparkFundContract.fund(`${wad}`); 
       setSuccessModal(true) 
 		}
-
 	};
 
 	return (
