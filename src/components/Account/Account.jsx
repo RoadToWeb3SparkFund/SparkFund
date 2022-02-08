@@ -18,10 +18,10 @@ const styles = {
     width: "fit-content",
     borderRadius: "12px",
     backgroundColor: "rgb(244, 244, 244)",
-    cursor: "pointer",
+    cursor: "pointer"
   },
   text: {
-    color: "#21BF96",
+    color: "#21BF96"
   },
   connector: {
     alignItems: "center",
@@ -32,15 +32,15 @@ const styles = {
     marginLeft: "auto",
     marginRight: "auto",
     padding: "20px 5px",
-    cursor: "pointer",
+    cursor: "pointer"
   },
   icon: {
     alignSelf: "center",
     fill: "rgb(40, 13, 95)",
     flexShrink: "0",
     marginBottom: "8px",
-    height: "30px",
-  },
+    height: "30px"
+  }
 };
 
 function Account() {
@@ -52,9 +52,9 @@ function Account() {
   if (!isAuthenticated || !account) {
     return (
       <>
-        <div onClick={() => setIsAuthModalVisible(true)}>
-          <p style={styles.text}>Authenticate</p>
-        </div>
+        <Button onClick={() => setIsAuthModalVisible(true)}>
+          Connect Wallet
+        </Button>
         <Modal
           visible={isAuthModalVisible}
           footer={null}
@@ -62,7 +62,7 @@ function Account() {
           bodyStyle={{
             padding: "15px",
             fontSize: "17px",
-            fontWeight: "500",
+            fontWeight: "500"
           }}
           style={{ fontSize: "16px", fontWeight: "500" }}
           width="340px"
@@ -73,7 +73,7 @@ function Account() {
               display: "flex",
               justifyContent: "center",
               fontWeight: "700",
-              fontSize: "20px",
+              fontSize: "20px"
             }}
           >
             Connect Wallet
@@ -134,7 +134,7 @@ function Account() {
         bodyStyle={{
           padding: "15px",
           fontSize: "17px",
-          fontWeight: "500",
+          fontWeight: "500"
         }}
         style={{ fontSize: "16px", fontWeight: "500" }}
         width="400px"
@@ -143,7 +143,7 @@ function Account() {
         <Card
           style={{
             marginTop: "10px",
-            borderRadius: "1rem",
+            borderRadius: "1rem"
           }}
           bodyStyle={{ padding: "15px" }}
         >
@@ -172,7 +172,7 @@ function Account() {
             marginTop: "10px",
             borderRadius: "0.5rem",
             fontSize: "16px",
-            fontWeight: "500",
+            fontWeight: "500"
           }}
           onClick={async () => {
             await logout();
